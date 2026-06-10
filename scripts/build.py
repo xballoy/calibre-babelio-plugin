@@ -1,10 +1,4 @@
-"""Build the installable Calibre plugin ZIP.
-
-Compiles the French catalog (``fr.po`` → ``translations/fr.mo``) with Babel's in-process API and
-stages the package contents flat into ``dist/babelio.zip`` — the layout Calibre expects, where the
-ZIP root *is* the package. English is the source language (empty ``msgstr``, resolved via gettext
-fallback), so no ``en.mo`` is shipped. Runs under ``uv`` with no Calibre and no system ``gettext``.
-"""
+"""Build the installable Calibre plugin ZIP (compiles `fr.po` → `fr.mo`)."""
 
 from __future__ import annotations
 

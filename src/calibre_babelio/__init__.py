@@ -1,14 +1,4 @@
-"""Plugin entry point: the ``Babelio(Source)`` class Calibre discovers and loads.
-
-This is the convergence point for the calibre-free / injectable layers built in the earlier tasks:
-the query builder (``query``), the HTTP/anti-bot client (``client``), the per-book worker
-(``worker``), the parser (``parser``), and the config widget + prefs store (``config``). It declares
-the plugin's capabilities, the backward-compatible ``babelio_id`` identifier round-trip, and
-orchestrates ``identify()`` over those modules.
-
-``_`` and ``load_translations`` are builtins Calibre installs at startup; the ``TYPE_CHECKING``
-stubs below only satisfy the type checker (and the test conftest provides no-op stand-ins).
-"""
+"""Plugin entry point: the `Babelio(Source)` class Calibre loads."""
 
 from __future__ import annotations
 

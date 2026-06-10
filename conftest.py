@@ -1,13 +1,4 @@
-"""Test-suite shim so pytest collection works without Calibre installed.
-
-Importing any ``calibre_babelio`` submodule runs the package ``__init__.py`` — the plugin entry
-point — which imports ``calibre`` and calls the ``load_translations`` / ``_`` builtins Calibre
-installs at startup. None of that exists off-Calibre, so this shim registers no-op builtins and a
-meta-path finder that fabricates dummy ``calibre.*`` / ``qt.*`` modules (attribute access yields a
-dummy class, usable even as a base class). Unit tests stay pure: they exercise the calibre-free
-modules and never touch the fabricated stand-ins. Integration tests (gated on
-``BABELIO_COOKIE``/``BABELIO_UA``) handle their own skip logic against real Calibre.
-"""
+"""Pytest shim that stubs `calibre`/`qt` and their builtins so collection works off-Calibre."""
 
 import builtins
 import importlib.abc

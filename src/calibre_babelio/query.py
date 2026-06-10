@@ -1,11 +1,4 @@
-"""Pure, calibre-free construction of the Babelio search term from book metadata.
-
-Babelio's search is accent- and punctuation-sensitive (see ``docs/selector-validation.md``
-Finding 2): the raw accented query does not surface the target, while a deburred, article-stripped,
-lowercased query returns it at rank 0, and a bare ISBN/EAN returns a single exact result. This
-module encodes those empirically validated rules as a pure function (metadata in, query string out)
-with no network access and no import of ``calibre`` or ``qt``.
-"""
+"""Pure construction of the Babelio search term from book metadata."""
 
 from __future__ import annotations
 
@@ -31,12 +24,8 @@ def build_search_query(
     authors: Sequence[str] | None,
     isbn: str | None,
 ) -> str | None:
-    """Build the term to POST to Babelio's ``/recherche`` as ``Recherche=<terms>``.
-
-    A valid ISBN/EAN is searched directly (single exact result). Otherwise the title and authors
-    are deburred, stripped of articles/punctuation and lowercased. Returns ``None`` when there is
-    neither a valid ISBN nor any usable title/author text.
-    """
+    """Build the Babelio search term: a valid ISBN/EAN verbatim, else the deburred,
+    article-stripped, lowercased title/authors. `None` when no usable input."""
     if isbn:
         normalized = _normalize_isbn(isbn)
         if normalized is not None:

@@ -1,14 +1,4 @@
-"""HTTP client and anti-bot layer for Babelio.
-
-This is the plugin's network layer. It authenticates with the browser-obtained ``jstsToken``
-cookie, sets the French request headers, rate-limits requests, treats HTTP 403 as a block, and
-trips a circuit breaker on repeated blocks to avoid an IP ban. It returns **raw iso-8859-1 bytes**
-— decoding is the parser's job (``parser.py``); see ``docs/selector-validation.md`` Finding 1.
-
-The browser is consumed through ``BrowserProtocol`` and the clock/sleep are injectable, so the
-anti-bot logic stays unit-testable off-Calibre (a fake browser can drive every path) — this module
-imports neither ``calibre`` nor ``mechanize``. In production the caller passes ``self.browser``.
-"""
+"""HTTP client and anti-bot layer for Babelio."""
 
 from __future__ import annotations
 
@@ -40,12 +30,12 @@ _CIRCUIT_LOCKFILE_NAME = "calibre_babelio_circuit_breaker.lock"
 _HTTP_FORBIDDEN = 403
 
 # Amazon image URLs encode a size in a modifier between the id and extension, e.g.
-# ``...._SX318_BO1,204,203,200_.jpg``; dropping it yields the full-resolution original.
+# `...._SX318_BO1,204,203,200_.jpg`; dropping it yields the full-resolution original.
 _AMAZON_SIZE_RE = re.compile(r"\._S[XY]\d+_.*?(\.[A-Za-z]+)$")
 
 
 def _full_resolution_url(url: str) -> str:
-    """Strip an Amazon image size modifier for full-res. No-op on Babelio ``/couv/`` URLs."""
+    """Strip an Amazon image size modifier for full-res. No-op on Babelio `/couv/` URLs."""
     return _AMAZON_SIZE_RE.sub(r"\1", url)
 
 

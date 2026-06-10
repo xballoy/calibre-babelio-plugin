@@ -1,18 +1,12 @@
-"""Live integration tests against real Babelio — opt-in, gated on ``BABELIO_COOKIE``.
+"""Live integration tests against real Babelio — opt-in, gated on `BABELIO_COOKIE`.
 
-These hit the network, so the whole module is skipped unless ``BABELIO_COOKIE`` is set (paste a
-fresh ``jstsToken``; ``BABELIO_UA`` optionally overrides the User-Agent). The default
-``uv run pytest`` therefore never touches Babelio. Run explicitly with::
+Skipped unless `BABELIO_COOKIE` is set (a fresh `jstsToken`; `BABELIO_UA` optionally
+overrides the User-Agent). Run explicitly with::
 
     BABELIO_COOKIE=<fresh token> uv run pytest tests/test_integration.py --no-cov
 
-``--no-cov`` because the repo's coverage gate (``fail_under = 100``) measures only the pure
-``parser``/``query`` modules, which this network-driven test does not fully exercise on its own.
-
-The plugin's network layer (``BabelioClient``) consumes a browser through ``BrowserProtocol`` and
-imports neither ``calibre`` nor ``mechanize``, so a thin stdlib ``urllib`` adapter drives the real
-client + ``query`` + ``parser`` without Calibre. The repo-root ``conftest.py`` absorbs the
-``calibre`` import that loading the package triggers.
+`--no-cov` because the coverage gate (`fail_under = 100`) measures only the pure
+`parser`/`query` modules, which this network-driven test does not fully exercise.
 """
 
 from __future__ import annotations
@@ -47,7 +41,7 @@ _CHATTAM_ID = "Chattam-Autre-Monde-tome-5--Oz/401283"
 
 
 class _UrllibBrowser:
-    """Stdlib ``BrowserProtocol`` adapter — the live stand-in for Calibre's ``self.browser``."""
+    """Stdlib `BrowserProtocol` adapter standing in for Calibre's `self.browser`."""
 
     def __init__(self) -> None:
         self._headers: dict[str, str] = {}

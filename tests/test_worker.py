@@ -243,7 +243,7 @@ def test_truncated_resume_fetches_full_text() -> None:
     assert isinstance(mi, FakeMetadata)
     assert mi.comments is not None
     assert mi.comments.startswith("La guerre avec les Cyniks terminée")
-    assert "\n" in mi.comments  # full text keeps paragraph breaks
+    assert "\n" in mi.comments
 
 
 def test_non_truncated_resume_skips_ajax() -> None:
@@ -321,7 +321,7 @@ def test_ajax_failure_falls_back_to_truncated_summary() -> None:
     assert isinstance(mi, FakeMetadata)
     # Falls back to the truncated résumé, which still carries the "Voir plus" marker.
     assert mi.comments is not None and mi.comments.endswith("Voir plus")
-    assert "\n" not in mi.comments  # not the multi-line full text
+    assert "\n" not in mi.comments
 
 
 def test_search_hit_target_with_empty_title_falls_back_to_hit_title() -> None:

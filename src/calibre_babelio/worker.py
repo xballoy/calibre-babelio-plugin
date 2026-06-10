@@ -1,13 +1,4 @@
-"""Per-book fetch worker: bridges the HTTP client and the parser into a Calibre ``Metadata``.
-
-Given a single search hit (or a known ``babelio_id``), the worker fetches the book page, parses it,
-and builds one ``Metadata`` object honoring the configured per-field toggles, then puts it on the
-shared result queue. It is the unit of work dispatched by ``identify()`` (Task 07).
-
-Like ``client.py``, this module imports neither ``calibre`` nor ``qt``: the Calibre-specific pieces
-(the ``Metadata`` factory, the ``Source``, the result queue, the abort event, the log) are injected
-through ``WorkerContext`` so the mapping logic stays unit-testable off-Calibre.
-"""
+"""Per-book fetch worker: bridges the HTTP client and parser into a Calibre `Metadata`."""
 
 from __future__ import annotations
 
@@ -32,7 +23,7 @@ _LANGUAGE = "fra"  # Babelio metadata is French; we don't do per-book language d
 
 
 class MetadataProtocol(Protocol):
-    """The subset of Calibre's ``Metadata`` the worker reads or writes."""
+    """The subset of Calibre's `Metadata` the worker reads or writes."""
 
     title: str
     authors: list[str]
@@ -88,7 +79,7 @@ class WorkerConfig:
 
 @dataclass(frozen=True, slots=True)
 class WorkerContext:
-    """Dependencies shared across all workers of a single ``identify()`` call."""
+    """Dependencies shared across all workers of a single `identify()` call."""
 
     client: ClientProtocol
     plugin: SourceProtocol
@@ -96,15 +87,14 @@ class WorkerContext:
     abort: threading.Event
     log: LogProtocol
     metadata_factory: MetadataFactory
-    # Task 07 injects ``parse_only_date(d.isoformat(), assume_utc=False, as_utc=False)`` so the
-    # date renders on the correct day in the user's timezone (a bare midnight-UTC datetime would
-    # display as the previous day west of UTC).
+    # Renders the date on the correct day in the user's timezone; a bare midnight-UTC
+    # datetime would display as the previous day west of UTC.
     date_to_datetime: DateConverter
     config: WorkerConfig
 
 
 class Worker(threading.Thread):
-    """Fetches and parses one book, builds its ``Metadata``, and queues it.
+    """Fetches and parses one book, builds its `Metadata`, and queues it.
 
     A caught anti-bot block is recorded on :attr:`error` so the orchestrator can surface the
     translated message; :attr:`result` exposes the queued object for tests.

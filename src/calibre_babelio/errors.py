@@ -1,8 +1,4 @@
-"""Typed exceptions raised by the Babelio HTTP client.
-
-These live in their own calibre-free module so the worker, plugin entry point, and config UI can
-catch them without importing the HTTP/anti-bot machinery in ``client.py``.
-"""
+"""Typed exceptions raised by the Babelio HTTP client."""
 
 from __future__ import annotations
 
@@ -13,19 +9,11 @@ _TOKEN_EXPIRED_MESSAGE = (
 
 
 class BabelioBlocked(Exception):
-    """Raised when Babelio returns HTTP 403 (how the JS challenge manifests for headless clients).
-
-    Signals that the ``jstsToken`` cookie is missing, expired, or invalid. The message is meant to
-    be surfaced verbatim to the user.
-    """
+    """Raised on HTTP 403 — a missing, expired, or invalid `jstsToken`."""
 
 
 class CircuitBreakerOpen(Exception):
-    """Raised while the circuit breaker is open after repeated blocks.
-
-    ``remaining`` is the approximate number of seconds until the breaker auto-recovers, so callers
-    can tell the user when to retry.
-    """
+    """Raised while the breaker is open; `remaining` is seconds until auto-recovery."""
 
     def __init__(self, remaining: float) -> None:
         self.remaining = remaining

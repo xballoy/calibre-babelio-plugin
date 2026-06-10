@@ -1,14 +1,4 @@
-"""Configuration UI and persistent preferences for the Babelio plugin.
-
-Exposes the ``prefs`` store (``JSONConfig('plugins/babelio')``) that ``identify()`` and
-``download_cover()`` read, and ``ConfigWidget`` — the Qt settings panel Calibre shows under
-Preferences → Metadata download → Babelio → Configure. ``worker_config_from_prefs()`` is the single
-place that maps the persisted values onto the worker's ``WorkerConfig`` (including the string →
-``TagCategory`` conversion).
-
-Qt is imported through Calibre's shim (``qt.core``); ``_`` is the gettext builtin Calibre installs
-at startup — the ``TYPE_CHECKING`` stub below only satisfies the type checker.
-"""
+"""Configuration UI and persistent preferences for the Babelio plugin."""
 
 from __future__ import annotations
 
@@ -87,7 +77,7 @@ def worker_config_from_prefs() -> WorkerConfig:
 
 
 class _TestConnectionWorker(QThread):  # type: ignore[misc]
-    """Runs the Babelio connection test off the GUI thread; emits the ``ConnectionResult``."""
+    """Runs the Babelio connection test off the GUI thread; emits the `ConnectionResult`."""
 
     result_ready = pyqtSignal(object)
 

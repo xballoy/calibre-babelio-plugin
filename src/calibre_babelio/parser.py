@@ -1,12 +1,4 @@
-"""Pure, calibre-free parsing of Babelio HTML into typed domain objects.
-
-This module is the testability cornerstone of the plugin: it contains only pure functions
-(raw bytes in, typed dataclasses out) with no network access, no global state, and no import
-of ``calibre`` or ``qt``. Selectors and their gotchas are documented in
-``docs/selector-validation.md`` and validated against the fixtures under ``tests/fixtures/``.
-
-Pages are served as iso-8859-1 (Latin-1); decoding them as UTF-8 mangles accented characters.
-"""
+"""Pure parsing of Babelio HTML into typed domain objects."""
 
 from __future__ import annotations
 
@@ -84,12 +76,7 @@ class BabelioBook:
 
 
 def parse_search_results(html: bytes) -> list[SearchHit]:
-    """Parse a Babelio search-results page into a list of hits.
-
-    Handles both the canonical ``.cr_meta`` result rows and the author-name
-    ``ul.livres_mozaique`` mosaic, with the documented fallback between them. Both layouts
-    yielding nothing means zero results.
-    """
+    """Parse hits from the `.cr_meta` rows, falling back to the `ul.livres_mozaique` mosaic."""
     soup = _soup(html)
 
     metas = soup.select(".cr_meta")
@@ -104,12 +91,8 @@ def parse_search_results(html: bytes) -> list[SearchHit]:
 
 
 def parse_book_page(html: bytes) -> BabelioBook | None:
-    """Parse a single Babelio book page into a :class:`BabelioBook`.
-
-    Returns ``None`` when the page is not a book page. Unknown book URLs redirect to the homepage,
-    which carries neither a canonical ``/livres/`` link nor a ``.livre_refs.grey_light`` edition
-    block; a real book page always has both.
-    """
+    """Parse a book page, or `None` when neither a canonical `/livres/` link nor an
+    edition block is present (an unknown URL redirected to the homepage)."""
     soup = _soup(html)
     babelio_id = _parse_babelio_id(soup)
     refs = soup.select_one(".livre_refs.grey_light")
@@ -138,11 +121,7 @@ def parse_book_page(html: bytes) -> BabelioBook | None:
 
 
 def parse_full_summary(html: bytes) -> str | None:
-    """Parse the ``aj_voir_plus_a.php`` AJAX fragment into plain text.
-
-    The fragment is a bare run of text with ``<br>`` separators (no surrounding page). ``<br>`` is
-    converted to a newline so paragraph breaks survive; an empty fragment yields ``None``.
-    """
+    """Parse the AJAX summary fragment, converting `<br>` to newlines; `None` if empty."""
     soup = _soup(html)
     for br in soup.find_all("br"):
         br.replace_with("\n")
@@ -273,7 +252,7 @@ def _parse_rating(soup: BeautifulSoup) -> float | None:
             value = float(text.replace(",", ".")) * (_RATING_TARGET_MAX / _RATING_SOURCE_MAX)
         except ValueError:
             continue
-        return max(0.0, min(_RATING_TARGET_MAX, value))  # clamp against malformed source values
+        return max(0.0, min(_RATING_TARGET_MAX, value))
     return None
 
 

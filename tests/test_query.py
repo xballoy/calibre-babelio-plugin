@@ -14,7 +14,7 @@ def _query(
 
 
 def test_herisson_example_surfaces_target_at_rank_zero() -> None:
-    # docs/selector-validation.md Finding 2: this deburred form returned the target at rank 0.
+    # this deburred form returns the target at rank 0.
     assert _query(title="L'élégance du hérisson", authors=["Barbery"]) == (
         "elegance herisson barbery"
     )
