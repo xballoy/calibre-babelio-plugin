@@ -1,6 +1,6 @@
 [project]
 name = "calibre-babelio-plugin"
-version = "0.0.0"
+version = "0.1.0"
 description = "Calibre metadata source plugin for Babelio (dev/CI tooling project)"
 requires-python = ">=3.12"
 dependencies = []
