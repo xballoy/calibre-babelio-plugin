@@ -26,6 +26,16 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Require the BABELIO_COOKIE secret
+        env:
+          BABELIO_COOKIE: ${{ secrets.BABELIO_COOKIE }}
+        run: |
+          if [ -z "$BABELIO_COOKIE" ]; then
+            echo "::error::BABELIO_COOKIE secret is not set — the live tests would silently skip." \
+              "Add a fresh jstsToken under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
       - name: Live identify against Babelio
         env:
           BABELIO_COOKIE: ${{ secrets.BABELIO_COOKIE }}
