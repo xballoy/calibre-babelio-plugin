@@ -168,10 +168,19 @@ msgstr ""
 msgid "Tag relevance thresholds"
 msgstr ""
 
-#: src/calibre_babelio/config.py:248
+#: src/calibre_babelio/config.py:249
 msgid ""
-"Only keep tags at or above this relevance, per Babelio category (0 = keep"
-" all)."
+"Babelio scores each tag by how strongly readers associate it with the book — "
+"its <b>relevance</b>. For each category, only tags scoring <b>at or above</b> "
+"your threshold are imported; the rest are dropped. <b>Higher = stricter</b> "
+"(fewer, more popular tags); <b>0 = keep every tag</b>. The default of 12 "
+"keeps widely-shared tags and filters out one-offs."
+msgstr ""
+
+#: src/calibre_babelio/config.py:265
+msgid ""
+"Minimum Babelio relevance score (0–100) a tag must reach to be imported in "
+"this category. 0 keeps all tags; higher keeps only the most popular."
 msgstr ""
 
 #: src/calibre_babelio/config.py:255

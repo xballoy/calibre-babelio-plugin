@@ -244,13 +244,26 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
     def _build_tag_relevance_group(self, parent: QWidget) -> QGroupBox:
         group = QGroupBox(_("Tag relevance thresholds"), parent)
         outer = QVBoxLayout(group)
-        intro = _(
-            "Only keep tags at or above this relevance, per Babelio category (0 = keep all)."
+        intro = QLabel(
+            _(
+                "Babelio scores each tag by how strongly readers associate it with the book — its "
+                "<b>relevance</b>. For each category, only tags scoring <b>at or above</b> your "
+                "threshold are imported; the rest are dropped. <b>Higher = stricter</b> (fewer, more "
+                "popular tags); <b>0 = keep every tag</b>. The default of 12 keeps widely-shared "
+                "tags and filters out one-offs."
+            ),
+            group,
         )
-        outer.addWidget(QLabel(intro, group))
+        intro.setWordWrap(True)
+        intro.setTextFormat(Qt.TextFormat.RichText)
+        outer.addWidget(intro)
         form = QFormLayout()
         outer.addLayout(form)
 
+        tooltip = _(
+            "Minimum Babelio relevance score (0–100) a tag must reach to be imported in this "
+            "category. 0 keeps all tags; higher keeps only the most popular."
+        )
         labels = {
             "genre": _("Genre:"),
             "theme": _("Thème:"),
@@ -261,6 +274,7 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         for key in _TAG_CATEGORY_KEYS:
             spin = QSpinBox(group)
             spin.setRange(0, 100)
+            spin.setToolTip(tooltip)
             self.tag_relevance[key] = spin
             form.addRow(labels[key], spin)
 
