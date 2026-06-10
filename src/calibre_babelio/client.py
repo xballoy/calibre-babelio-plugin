@@ -110,6 +110,9 @@ class BabelioClient:
         self._last_request_at = 0.0
         self._consecutive_blocks = 0
         self._lock = threading.Lock()
+        # mechanize's Browser is stateful and not thread-safe; serialize the whole I/O across the
+        # concurrent Worker threads that share this client.
+        self._request_lock = threading.Lock()
         self._setup_browser()
 
     def _setup_browser(self) -> None:
@@ -178,16 +181,18 @@ class BabelioClient:
     ) -> FetchResult:
         if check_circuit:
             self._check_circuit()
-        self._wait_rate_limit()
-        try:
-            response = self._browser.open(url, data, timeout, headers=extra_headers)
-        except urllib.error.HTTPError as exc:
-            if exc.code == _HTTP_FORBIDDEN:
-                self._on_block(record_blocks)  # raises BabelioBlocked
-            raise  # non-403 HTTPError surfaces unchanged
-        body = response.read()
+        with self._request_lock:
+            self._wait_rate_limit()
+            try:
+                response = self._browser.open(url, data, timeout, headers=extra_headers)
+            except urllib.error.HTTPError as exc:
+                if exc.code == _HTTP_FORBIDDEN:
+                    self._on_block(record_blocks)  # raises BabelioBlocked
+                raise  # non-403 HTTPError surfaces unchanged
+            body = response.read()
+            final_url = self._browser.geturl()
         self._on_success()
-        return FetchResult(body, self._browser.geturl())
+        return FetchResult(body, final_url)
 
     def _wait_rate_limit(self) -> None:
         with self._lock:

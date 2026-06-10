@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+import time
 import urllib.error
 from collections.abc import Mapping
 from pathlib import Path
@@ -180,3 +182,57 @@ def test_connection_result_ok_tracks_status(
     status: ConnectionStatus, expected_ok: bool
 ) -> None:
     assert ConnectionResult(status).ok is expected_ok
+
+
+class RaceDetectingBrowser(FakeBrowser):
+    """Test double that records whether any two `open()` calls overlap in time."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._counter_lock = threading.Lock()
+        self._in_flight = 0
+        self.concurrent_seen = False
+        self._current_url = ""
+
+    def open(
+        self,
+        url: str,
+        data: bytes | None = None,
+        timeout: float = 30.0,
+        headers: Mapping[str, str] | None = None,
+    ) -> FakeResponse:
+        with self._counter_lock:
+            self._in_flight += 1
+            if self._in_flight > 1:
+                self.concurrent_seen = True
+        self._current_url = url
+        time.sleep(0.005)  # widen the window so an unsynchronized caller would interleave here
+        with self._counter_lock:
+            self._in_flight -= 1
+        return FakeResponse(b"")
+
+    def geturl(self) -> str:
+        return self._current_url
+
+
+def test_concurrent_fetches_are_serialized() -> None:
+    browser = RaceDetectingBrowser()
+    client = _client(browser)
+    ids = [f"Book-{n}/{n}" for n in range(8)]
+    results: dict[str, str] = {}
+    results_lock = threading.Lock()
+
+    def fetch(babelio_id: str) -> None:
+        result = client.get_book_page(babelio_id)
+        with results_lock:
+            results[babelio_id] = result.final_url
+
+    threads = [threading.Thread(target=fetch, args=(i,)) for i in ids]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert not browser.concurrent_seen
+    for babelio_id in ids:
+        assert results[babelio_id].endswith(f"/livres/{babelio_id}")

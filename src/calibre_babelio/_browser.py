@@ -50,8 +50,8 @@ class CalibreBrowserAdapter:
             from mechanize import Request
 
             factory = Request
-        # mechanize's open() has no headers kwarg, so headers ride on a Request; a fresh
-        # Request per call also keeps the shared browser thread-safe across Worker threads.
+        # mechanize's open() has no headers kwarg, so headers ride on a Request. The browser is
+        # not thread-safe; BabelioClient serializes concurrent calls (see _request_lock).
         request = factory(url, data=data, headers=dict(headers or {}))
         if timeout is None:
             return self._browser.open(request)
