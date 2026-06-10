@@ -137,6 +137,19 @@ def parse_book_page(html: bytes) -> BabelioBook | None:
     )
 
 
+def parse_full_summary(html: bytes) -> str | None:
+    """Parse the ``aj_voir_plus_a.php`` AJAX fragment into plain text.
+
+    The fragment is a bare run of text with ``<br>`` separators (no surrounding page). ``<br>`` is
+    converted to a newline so paragraph breaks survive; an empty fragment yields ``None``.
+    """
+    soup = _soup(html)
+    for br in soup.find_all("br"):
+        br.replace_with("\n")
+    lines = [collapsed for raw in soup.get_text().split("\n") if (collapsed := _collapse(raw))]
+    return "\n".join(lines) or None
+
+
 def _soup(html: bytes) -> BeautifulSoup:
     return BeautifulSoup(html, "html.parser", from_encoding=_ENCODING)
 

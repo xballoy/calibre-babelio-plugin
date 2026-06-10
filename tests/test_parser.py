@@ -24,6 +24,7 @@ from calibre_babelio.parser import (
     _parse_title,
     _soup,
     parse_book_page,
+    parse_full_summary,
     parse_search_results,
 )
 
@@ -343,3 +344,17 @@ def test_tags_skips_uncategorized_and_empty_names() -> None:
         b'<a class="tc_0 tag_t9" href="/x"></a></div>'
     )
     assert _parse_tags(_soup(html)) == ()
+
+
+def test_full_summary_keeps_paragraph_breaks() -> None:
+    text = parse_full_summary(_load("ajax_resume_voirplus.html"))
+    assert text is not None
+    lines = text.split("\n")
+    assert len(lines) == 8
+    assert lines[0].startswith("La guerre avec les Cyniks terminée")
+    assert lines[-1] == "Le sort d'Autre-Monde est en jeu"
+
+
+def test_full_summary_empty_fragment_is_none() -> None:
+    assert parse_full_summary(b"") is None
+    assert parse_full_summary(b"<br>   <br>") is None
