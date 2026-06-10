@@ -8,6 +8,7 @@ dependencies = []
 [dependency-groups]
 dev = [
     "pytest==9.0.3",
+    "pytest-cov==7.1.0",
     "ruff==0.15.16",
     "mypy==2.1.0",
     "beautifulsoup4==4.15.0",
@@ -29,6 +30,15 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+addopts = "--cov --cov-report=term-missing"
+
+[tool.coverage.run]
+branch = true
+source = ["calibre_babelio.parser"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
 
 [tool.mypy]
 python_version = "3.12"

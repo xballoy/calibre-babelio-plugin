@@ -77,7 +77,7 @@ Plugin should: parse `.cr_meta` if present; else fall back to `ul.livres_mozaiqu
 | **ISBN/EAN** | first `\d{13}` token inside `.livre_refs.grey_light` | ⚠️ The old `EAN :` prefix is **gone** — it's now a bare 13-digit number. The reference's `EAN[: ]` regex returns `None`. |
 | **Publisher** | `.livre_refs.grey_light a[href^="/editeur"]` (or trailing text after the date) | Multiple editions → multiple publishers; `Voir plus` is noise to filter. Sample: `Albin Michel / Wiz`. |
 | **Publication date** | `\d{2}/\d{2}/\d{4}` inside `.livre_refs.grey_light`, `strptime("%d/%m/%Y")` | ⚠️ **Sentinel `30/11/-1` = unknown date** (`book_herisson_noseries.html`). Reject year `<= 0` / the `/-1` form → leave `pubdate` unset. |
-| **Rating** | `[itemprop="ratingValue"]` (first), count `[itemprop="ratingCount"]` | ⚠️ **French decimal comma** (`4,21`, `3,77`) → replace `,`→`.`. Scale is **/5** → multiply by 2 for Calibre's 0–10. ⚠️ multiple empty `ratingValue` nodes exist; take the first non-empty. |
+| **Rating** | `[itemprop="aggregateRating"] [itemprop="ratingValue"]`, count `[itemprop="ratingCount"]` | ⚠️ **French decimal comma** (`4,21`, `3,77`) → replace `,`→`.`. Scale is **/5** → multiply by 2 for Calibre's 0–10; clamp to `[0, 10]`. ⚠️ **A page has ~7 `[itemprop="ratingValue"]` nodes**: one aggregate span (visible, comma-formatted) plus a `<meta itemprop="ratingValue">` per displayed review (e.g. `4.0`, `5.0`). A bare page-wide selector only works by document order — **scope to the `aggregateRating` container** so a review score is never mistaken for the book rating. |
 | **Series** | `a[href^="/serie/"]` → `/serie/<slug>/<id>` | Present on Chattam (`/serie/Autre-Monde/30`), **absent** on hérisson → series handling must be optional. |
 | **Series index** | regex `tome\s+(\d+)` on the title | `Autre-Monde, tome 5 : Oz` → `5`. Cheaper than fetching the series page. Fallback: the series page (`serie_autre_monde.html`) lists the 17 books in order if the title lacks a tome number. |
 | **Editions** | `.livre_refs.grey_light` | ✅ Pages expose a **single primary edition block** (even Monte-Cristo) — take it directly; no multi-edition disambiguation needed. |
@@ -102,6 +102,14 @@ the top N distinct levels.
 ### No-results detection — ✅ confirmed
 A query with no matches returns **0 `.cr_meta` and 0 `ul.livres_mozaique li.item`** (generic page
 title, no explicit "aucun résultat" string). Treat *both selectors empty* as zero results.
+
+### Non-book pages / unknown book id — ✅ confirmed
+An unknown book URL (e.g. `/livres/zzz-does-not-exist/999999999`) responds **HTTP 301 → the
+homepage** (`https://www.babelio.com/`, HTTP 200). Calibre's browser follows the redirect, so the
+parser is handed the **homepage** HTML, not a 404. The homepage's `canonical` is
+`https://www.babelio.com` (**no** `/livres/`) and it has **no** `.livre_refs.grey_light` edition
+block — a real book page always has both. `parse_book_page` returns `None` when both signals are
+absent. Fixture: `book_not_found_redirects_home.html`.
 
 ---
 
