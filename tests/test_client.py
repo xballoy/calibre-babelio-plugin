@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import threading
 import time
 import urllib.error
@@ -9,10 +10,12 @@ from pathlib import Path
 import pytest
 
 from calibre_babelio.client import (
+    _SHARED_REQUEST_STATE,
     BabelioClient,
     ConnectionResult,
     ConnectionStatus,
     _full_resolution_url,
+    _SharedRequestState,
 )
 from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
 
@@ -65,6 +68,7 @@ class FakeBrowser:
 
 
 def _client(browser: FakeBrowser, **kwargs: object) -> BabelioClient:
+    kwargs.setdefault("_shared", _SharedRequestState())
     return BabelioClient(browser, "token", "UA/1.0", min_interval=0.0, **kwargs)  # type: ignore[arg-type]
 
 
@@ -205,6 +209,7 @@ class RaceDetectingBrowser(FakeBrowser):
             self._in_flight += 1
             if self._in_flight > 1:
                 self.concurrent_seen = True
+        self.opened.append(url)
         self._current_url = url
         time.sleep(0.005)  # widen the window so an unsynchronized caller would interleave here
         with self._counter_lock:
@@ -213,6 +218,29 @@ class RaceDetectingBrowser(FakeBrowser):
 
     def geturl(self) -> str:
         return self._current_url
+
+
+def test_clients_share_request_state_by_default() -> None:
+    first = BabelioClient(FakeBrowser(), "token", "UA/1.0")
+    second = BabelioClient(FakeBrowser(), "token", "UA/1.0")
+
+    assert first._shared is second._shared is _SHARED_REQUEST_STATE
+
+
+class VanishingLockfile(Path):
+    """Simulates the lockfile being unlinked by another thread mid-check."""
+
+    def stat(self, *, follow_symlinks: bool = True) -> os.stat_result:
+        raise FileNotFoundError(str(self))
+
+
+def test_check_circuit_tolerates_lockfile_vanishing(tmp_path: Path) -> None:
+    browser = FakeBrowser(b"img")
+    client = _client(browser, lockfile_path=VanishingLockfile(tmp_path / "circuit.lock"))
+
+    client.fetch_image(_COVER_URL)
+
+    assert browser.opened == [_COVER_URL]
 
 
 def test_concurrent_fetches_are_serialized() -> None:
@@ -236,3 +264,22 @@ def test_concurrent_fetches_are_serialized() -> None:
     assert not browser.concurrent_seen
     for babelio_id in ids:
         assert results[babelio_id].endswith(f"/livres/{babelio_id}")
+
+
+def test_concurrent_fetches_across_clients_are_serialized() -> None:
+    browser = RaceDetectingBrowser()
+    shared = _SharedRequestState()
+    clients = [_client(browser, _shared=shared) for _ in range(2)]
+    ids = [f"Book-{n}/{n}" for n in range(8)]
+
+    threads = [
+        threading.Thread(target=clients[n % 2].get_book_page, args=(babelio_id,))
+        for n, babelio_id in enumerate(ids)
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert not browser.concurrent_seen
+    assert len(browser.opened) == len(ids)

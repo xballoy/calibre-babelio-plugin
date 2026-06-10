@@ -39,6 +39,20 @@ def _full_resolution_url(url: str) -> str:
     return _AMAZON_SIZE_RE.sub(r"\1", url)
 
 
+# mechanize's Browser is not thread-safe and Calibre hands every client the same per-plugin
+# browser, so the request lock must be process-wide: a per-client lock would let workers
+# surviving an aborted call race the next call's client through the same browser.
+class _SharedRequestState:
+    __slots__ = ("last_request_at", "request_lock")
+
+    def __init__(self) -> None:
+        self.request_lock = threading.Lock()
+        self.last_request_at = 0.0
+
+
+_SHARED_REQUEST_STATE = _SharedRequestState()
+
+
 class _Response(Protocol):
     def read(self) -> bytes: ...
 
@@ -94,6 +108,7 @@ class BabelioClient:
         _clock: Callable[[], float] = time.monotonic,
         _sleep: Callable[[float], None] = time.sleep,
         _now_wall: Callable[[], float] = time.time,
+        _shared: _SharedRequestState = _SHARED_REQUEST_STATE,
     ) -> None:
         self._browser = browser
         self._cookie = cookie
@@ -107,12 +122,9 @@ class BabelioClient:
         self._clock = _clock
         self._sleep = _sleep
         self._now_wall = _now_wall
-        self._last_request_at = 0.0
+        self._shared = _shared
         self._consecutive_blocks = 0
         self._lock = threading.Lock()
-        # mechanize's Browser is stateful and not thread-safe; serialize the whole I/O across the
-        # concurrent Worker threads that share this client.
-        self._request_lock = threading.Lock()
         self._setup_browser()
 
     def _setup_browser(self) -> None:
@@ -181,7 +193,7 @@ class BabelioClient:
     ) -> FetchResult:
         if check_circuit:
             self._check_circuit()
-        with self._request_lock:
+        with self._shared.request_lock:
             self._wait_rate_limit()
             try:
                 response = self._browser.open(url, data, timeout, headers=extra_headers)
@@ -195,16 +207,20 @@ class BabelioClient:
         return FetchResult(body, final_url)
 
     def _wait_rate_limit(self) -> None:
-        with self._lock:
-            elapsed = self._clock() - self._last_request_at
-            if elapsed < self._min_interval:
-                self._sleep(self._min_interval - elapsed)
-            self._last_request_at = self._clock()
+        # Caller holds `request_lock`, which is what guards `last_request_at`.
+        shared = self._shared
+        elapsed = self._clock() - shared.last_request_at
+        if elapsed < self._min_interval:
+            self._sleep(self._min_interval - elapsed)
+        shared.last_request_at = self._clock()
 
     def _check_circuit(self) -> None:
-        if not self._lockfile_path.exists():
+        # Another thread can unlink the lockfile between any two filesystem calls.
+        try:
+            mtime = self._lockfile_path.stat().st_mtime
+        except FileNotFoundError:
             return
-        age = self._now_wall() - self._lockfile_path.stat().st_mtime
+        age = self._now_wall() - mtime
         if age < self._cooldown:
             raise CircuitBreakerOpen(self._cooldown - age)
         self._lockfile_path.unlink(missing_ok=True)

@@ -101,7 +101,8 @@ class Worker(threading.Thread):
     """
 
     def __init__(self, target: SearchHit | str, relevance: int, ctx: WorkerContext) -> None:
-        super().__init__()
+        # Daemon because an aborted identify() abandons its workers without joining them.
+        super().__init__(daemon=True)
         self._target = target
         self._relevance = relevance
         self._ctx = ctx

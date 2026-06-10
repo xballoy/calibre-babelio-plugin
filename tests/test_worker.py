@@ -219,6 +219,12 @@ def test_disabled_toggles_leave_fields_unset() -> None:
     assert client.summary_calls == []
 
 
+def test_worker_is_daemon() -> None:
+    ctx, _, _ = _context(FakeClient(b""))
+
+    assert Worker(_CHATTAM_ID, 0, ctx).daemon is True
+
+
 def test_abort_before_run_queues_nothing() -> None:
     client = FakeClient(_load("book_chattam.html"))
     abort = threading.Event()

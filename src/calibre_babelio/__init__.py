@@ -163,6 +163,9 @@ class Babelio(Source):  # type: ignore[misc]
         while not abort.is_set() and any(worker.is_alive() for worker in workers):
             time.sleep(_POLL_INTERVAL)
 
+        if abort.is_set():
+            # Abandoned workers may still be writing `result`/`error`; don't read them.
+            return None
         if any(worker.result is not None for worker in workers):
             return None
         if workers and all(worker.error is not None for worker in workers):
