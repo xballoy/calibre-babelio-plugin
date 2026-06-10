@@ -1,0 +1,43 @@
+[project]
+name = "calibre-babelio-plugin"
+version = "0.1.0"
+description = "Calibre metadata source plugin for Babelio (dev/CI tooling project)"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest==9.0.3",
+    "ruff==0.15.16",
+    "mypy==2.1.0",
+    "beautifulsoup4==4.15.0",
+    "lxml==6.1.1",
+    "html5lib==1.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src/calibre_babelio", "tests"]
+
+# Calibre/Qt + runtime-only libs are unavailable off-Calibre; stub them out so the
+# type checker succeeds without Calibre and treats these imports as untyped.
+[[tool.mypy.overrides]]
+module = ["calibre.*", "qt.*", "mechanize.*", "css_selectors.*", "html5lib.*"]
+ignore_missing_imports = true
