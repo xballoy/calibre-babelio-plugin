@@ -238,9 +238,9 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
             _(
                 "Babelio scores each tag by how strongly readers associate it with the book — its "
                 "<b>relevance</b>. For each category, only tags scoring <b>at or above</b> your "
-                "threshold are imported; the rest are dropped. <b>Higher = stricter</b> (fewer, more "
-                "popular tags); <b>0 = keep every tag</b>. The default of 12 keeps widely-shared "
-                "tags and filters out one-offs."
+                "threshold are imported; the rest are dropped. <b>Higher = stricter</b> (fewer, "
+                "more popular tags); <b>0 = keep every tag</b>. The default of 12 keeps "
+                "widely-shared tags and filters out one-offs."
             ),
             group,
         )
