@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import os
 import threading
 import time
 import urllib.error
-from collections.abc import Mapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -18,6 +17,10 @@ from calibre_babelio.client import (
     _SharedRequestState,
 )
 from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
+
+if TYPE_CHECKING:
+    import os
+    from collections.abc import Mapping
 
 _COVER_URL = "https://www.babelio.com/couv/CVT_CVT_Autre-Monde-Tome-5--Oz_6607.jpg"
 
@@ -142,6 +145,66 @@ def test_fetch_image_open_circuit_blocks_request(tmp_path: Path) -> None:
     with pytest.raises(CircuitBreakerOpen):
         client.fetch_image(_COVER_URL)
     assert browser.opened == []
+
+
+def test_get_full_summary_posts_to_ajax_endpoint() -> None:
+    browser = FakeBrowser(b"<p>full r\xe9sum\xe9</p>", final_url="https://final")
+    client = _client(browser)
+
+    result = client.get_full_summary(1, 918135, "https://ref")
+
+    assert result.body == b"<p>full r\xe9sum\xe9</p>"
+    assert browser.opened == ["https://www.babelio.com/aj_voir_plus_a.php"]
+
+
+def test_rate_limit_sleeps_when_requests_are_too_close(tmp_path: Path) -> None:
+    sleeps: list[float] = []
+    clock_values = iter([0.4, 1.0])
+    client = BabelioClient(
+        FakeBrowser(b"img"),
+        "token",
+        "UA/1.0",
+        min_interval=1.0,
+        lockfile_path=tmp_path / "circuit.lock",
+        _clock=lambda: next(clock_values),
+        _sleep=sleeps.append,
+        _shared=_SharedRequestState(),
+    )
+
+    client.fetch_image(_COVER_URL)
+
+    assert sleeps == [pytest.approx(0.6)]
+
+
+def test_expired_circuit_lockfile_is_removed_and_request_proceeds(tmp_path: Path) -> None:
+    lockfile = tmp_path / "circuit.lock"
+    lockfile.touch()
+    browser = FakeBrowser(b"img")
+    client = _client(
+        browser,
+        lockfile_path=lockfile,
+        cooldown=3600.0,
+        _now_wall=lambda: lockfile.stat().st_mtime + 7200.0,
+    )
+
+    client.fetch_image(_COVER_URL)
+
+    assert not lockfile.exists()
+    assert browser.opened == [_COVER_URL]
+
+
+def test_repeated_blocks_trip_the_circuit_breaker(tmp_path: Path) -> None:
+    lockfile = tmp_path / "circuit.lock"
+    browser = FakeBrowser(error=_http_error(403))
+    client = _client(browser, lockfile_path=lockfile, block_threshold=2)
+
+    for _ in range(2):
+        with pytest.raises(BabelioBlocked):
+            client.fetch_image(_COVER_URL)
+
+    assert lockfile.exists()
+    with pytest.raises(CircuitBreakerOpen):
+        client.fetch_image(_COVER_URL)
 
 
 def test_connection_ok() -> None:

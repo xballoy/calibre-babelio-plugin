@@ -94,7 +94,7 @@ class Babelio(Source):  # type: ignore[misc]
         abort: Event,
         title: str | None = None,
         authors: list[str] | None = None,
-        identifiers: Mapping[str, str] = {},  # noqa: B006 - Calibre's documented signature.
+        identifiers: Mapping[str, str] = {},
         timeout: int = 30,
     ) -> str | None:
         from calibre.ebooks.metadata.book.base import Metadata
@@ -186,12 +186,10 @@ class Babelio(Source):  # type: ignore[misc]
         abort: Event,
         title: str | None = None,
         authors: list[str] | None = None,
-        identifiers: Mapping[str, str] = {},  # noqa: B006 - Calibre's documented signature.
+        identifiers: Mapping[str, str] = {},
         timeout: int = 30,
         get_best_cover: bool = False,
     ) -> None:
-        from queue import Empty, Queue
-
         from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient
         from .config import prefs
@@ -203,34 +201,14 @@ class Babelio(Source):  # type: ignore[misc]
 
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
-            log.info("No cached Babelio cover; running identify first")
-            rq: Queue[MetadataProtocol] = Queue()
-            self.identify(
-                log, rq, abort, title=title, authors=authors,
+            cached_url = self._cover_url_via_identify(
+                log, abort, title=title, authors=authors,
                 identifiers=identifiers, timeout=timeout,
             )
-            if abort.is_set():
-                return
-            results = []
-            while True:
-                try:
-                    results.append(rq.get_nowait())
-                except Empty:
-                    break
-            results.sort(
-                key=self.identify_results_keygen(
-                    title=title, authors=authors, identifiers=identifiers
-                )
-            )
-            for mi in results:
-                cached_url = self.get_cached_cover_url(mi.identifiers)
-                if cached_url is not None:
-                    break
-
+        if abort.is_set():
+            return
         if cached_url is None:
             log.info("No Babelio cover found for", title)
-            return
-        if abort.is_set():
             return
 
         client = BabelioClient(
@@ -245,11 +223,48 @@ class Babelio(Source):  # type: ignore[misc]
         except (BabelioBlocked, CircuitBreakerOpen) as exc:
             log.error("Babelio blocked the cover download:", exc)
             return
-        except Exception:  # noqa: BLE001 - a cover failure must never bubble out of download_cover.
+        except Exception:
             log.exception("Failed to download Babelio cover from:", cached_url)
             return
         if cdata:
             result_queue.put((self, cdata))
+
+    def _cover_url_via_identify(
+        self,
+        log: LogProtocol,
+        abort: Event,
+        *,
+        title: str | None,
+        authors: list[str] | None,
+        identifiers: Mapping[str, str],
+        timeout: int,
+    ) -> str | None:
+        from queue import Empty, Queue
+
+        log.info("No cached Babelio cover; running identify first")
+        rq: Queue[MetadataProtocol] = Queue()
+        self.identify(
+            log, rq, abort, title=title, authors=authors,
+            identifiers=identifiers, timeout=timeout,
+        )
+        if abort.is_set():
+            return None
+        results = []
+        while True:
+            try:
+                results.append(rq.get_nowait())
+            except Empty:
+                break
+        results.sort(
+            key=self.identify_results_keygen(
+                title=title, authors=authors, identifiers=identifiers
+            )
+        )
+        for mi in results:
+            cached_url = self.get_cached_cover_url(mi.identifiers)
+            if cached_url is not None:
+                return cached_url
+        return None
 
 
 if __name__ == "__main__":

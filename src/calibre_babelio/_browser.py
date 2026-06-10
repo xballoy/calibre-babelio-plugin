@@ -46,7 +46,7 @@ class CalibreBrowserAdapter:
         headers: Mapping[str, str] | None = None,
     ) -> _Response:
         factory = self._request_factory
-        if factory is None:
+        if factory is None:  # pragma: no cover - mechanize exists only inside Calibre
             from mechanize import Request
 
             factory = Request

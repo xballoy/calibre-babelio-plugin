@@ -88,9 +88,9 @@ The live integration test is opt-in and gated on a real cookie:
 BABELIO_COOKIE=<fresh token> uv run pytest tests/test_integration.py --no-cov
 ```
 
-`--no-cov` is required because the coverage gate measures only the pure parser/query modules, which
-the network-driven test does not cover on its own. You can optionally set `BABELIO_UA` to override
-the User-Agent.
+`--no-cov` is required because the coverage gate requires 100% over every module testable
+off-Calibre, which the network-driven test does not reach on its own. You can optionally set
+`BABELIO_UA` to override the User-Agent.
 
 The same suite can be run in CI via the **Live integration** workflow (manual `workflow_dispatch`
 only). It reads the `jstsToken` from a `BABELIO_COOKIE` **repository secret** (*Settings → Secrets

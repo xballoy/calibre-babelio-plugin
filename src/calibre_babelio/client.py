@@ -8,13 +8,15 @@ import threading
 import time
 import urllib.error
 import urllib.parse
-from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from .errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
 _BASE_URL = "https://www.babelio.com"
 _ACCEPT_LANGUAGE = "fr-FR,fr;q=0.9"
@@ -180,7 +182,8 @@ class BabelioClient:
             self.search("test", timeout=timeout, record_blocks=False, check_circuit=False)
         except BabelioBlocked:
             return ConnectionResult(ConnectionStatus.TOKEN_EXPIRED)
-        except CircuitBreakerOpen as exc:
+        # Unreachable while the search above passes check_circuit=False; kept defensively.
+        except CircuitBreakerOpen as exc:  # pragma: no cover
             return ConnectionResult(ConnectionStatus.CIRCUIT_OPEN, str(exc))
         except Exception as exc:  # noqa: BLE001 - UI button must report any failure, never raise.
             return ConnectionResult(ConnectionStatus.ERROR, str(exc))

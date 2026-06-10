@@ -7,7 +7,10 @@ import importlib.abc
 import importlib.machinery
 import sys
 import types
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _STUB_ROOTS = ("calibre", "qt")
 

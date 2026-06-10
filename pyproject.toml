@@ -26,7 +26,13 @@ line-length = 100
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM"]
+select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "BLE", "C90", "PERF", "RUF", "TC"]
+# The plugin parses and tests French text; typographic quotes, dashes, and ellipses in
+# strings and comments are deliberate.
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -35,7 +41,9 @@ addopts = "--cov --cov-report=term-missing"
 
 [tool.coverage.run]
 branch = true
-source = ["calibre_babelio.parser", "calibre_babelio.query"]
+source = ["calibre_babelio"]
+# config.py (Qt UI) and __init__.py (Calibre Source glue) need a running Calibre.
+omit = ["*/config.py", "*/__init__.py"]
 
 [tool.coverage.report]
 show_missing = true

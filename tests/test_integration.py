@@ -14,8 +14,7 @@ from __future__ import annotations
 import http.client
 import os
 import urllib.request
-from collections.abc import Mapping
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -23,6 +22,10 @@ from calibre_babelio.client import _DEFAULT_USER_AGENT, BabelioClient, Connectio
 from calibre_babelio.errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
 from calibre_babelio.parser import parse_book_page, parse_search_results
 from calibre_babelio.query import build_search_query
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from pathlib import Path
 
 _COOKIE = os.environ.get("BABELIO_COOKIE")
 

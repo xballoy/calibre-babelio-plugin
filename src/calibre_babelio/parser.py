@@ -6,9 +6,12 @@ import re
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
-from bs4.element import Tag as BsTag
+
+if TYPE_CHECKING:
+    from bs4.element import Tag as BsTag
 
 _ENCODING = "iso-8859-1"
 

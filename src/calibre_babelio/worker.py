@@ -6,10 +6,8 @@ import threading
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import date, datetime
-from queue import Queue
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
-from .client import FetchResult
 from .errors import BabelioBlocked, CircuitBreakerOpen
 from .parser import (
     BabelioBook,
@@ -18,6 +16,11 @@ from .parser import (
     parse_book_page,
     parse_full_summary,
 )
+
+if TYPE_CHECKING:
+    from queue import Queue
+
+    from .client import FetchResult
 
 _LANGUAGE = "fra"  # Babelio metadata is French; we don't do per-book language detection.
 
@@ -121,7 +124,7 @@ class Worker(threading.Thread):
             self.error = exc
             ctx.log.error("Babelio blocked while fetching", babelio_id, exc)
             return
-        except Exception:  # noqa: BLE001 - one failed book must not abort the whole identify run.
+        except Exception:
             ctx.log.exception("Failed to fetch Babelio book", babelio_id)
             return
 
@@ -134,10 +137,10 @@ class Worker(threading.Thread):
             ctx.plugin.clean_downloaded_metadata(mi)
             self.result = mi
             ctx.result_queue.put(mi)
-        except Exception:  # noqa: BLE001 - a malformed page must not abort the whole identify run.
+        except Exception:
             ctx.log.exception("Failed to parse Babelio book", babelio_id)
 
-    def _build_metadata(
+    def _build_metadata(  # noqa: C901 - a flat per-field toggle mapping; splitting hurts cohesion.
         self, book: BabelioBook, babelio_id: str, referer: str
     ) -> MetadataProtocol:
         ctx = self._ctx
@@ -190,7 +193,7 @@ class Worker(threading.Thread):
         try:
             fragment = ctx.client.get_full_summary(full_type, full_id, referer)
             full = parse_full_summary(fragment.body)
-        except Exception:  # noqa: BLE001 - the page already succeeded; keep the truncated résumé.
+        except Exception:
             ctx.log.exception("Failed to fetch full Babelio résumé", referer)
             return book.summary
         return full or book.summary
