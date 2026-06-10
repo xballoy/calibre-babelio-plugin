@@ -92,11 +92,15 @@ class _TestConnectionWorker(QThread):  # type: ignore[misc]
     def run(self) -> None:
         from calibre import browser
 
+        from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient, ConnectionResult
 
         try:
             client = BabelioClient(
-                browser(), self._cookie, self._user_agent, min_interval=self._min_interval
+                CalibreBrowserAdapter(browser()),
+                self._cookie,
+                self._user_agent,
+                min_interval=self._min_interval,
             )
             result = client.test_connection()
         except Exception as exc:  # noqa: BLE001 — UI worker must never raise across the thread.

@@ -100,6 +100,7 @@ class Babelio(Source):  # type: ignore[misc]
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.utils.date import parse_only_date
 
+        from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient
         from .config import prefs, worker_config_from_prefs
         from .errors import BabelioBlocked, CircuitBreakerOpen
@@ -108,7 +109,7 @@ class Babelio(Source):  # type: ignore[misc]
         from .worker import Worker, WorkerContext
 
         client = BabelioClient(
-            self.browser,
+            CalibreBrowserAdapter(self.browser),
             prefs["jsts_token"],
             prefs["user_agent"],
             min_interval=prefs["min_interval"],
@@ -183,6 +184,7 @@ class Babelio(Source):  # type: ignore[misc]
     ) -> None:
         from queue import Empty, Queue
 
+        from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient
         from .config import prefs
         from .errors import BabelioBlocked, CircuitBreakerOpen
@@ -224,7 +226,7 @@ class Babelio(Source):  # type: ignore[misc]
             return
 
         client = BabelioClient(
-            self.browser,
+            CalibreBrowserAdapter(self.browser),
             prefs["jsts_token"],
             prefs["user_agent"],
             min_interval=prefs["min_interval"],
