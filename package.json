@@ -1,0 +1,18 @@
+{
+  "name": "calibre-babelio-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.5.3",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "changeset": "changeset",
+    "changeset:version": "changeset version && node scripts/sync-version.mjs",
+    "changeset:release": "uv run python scripts/build.py && node scripts/release.mjs"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "0.7.0",
+    "@changesets/cli": "2.31.0"
+  }
+}

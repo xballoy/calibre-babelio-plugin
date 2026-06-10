@@ -1,0 +1,228 @@
+# Translations template for calibre-babelio-plugin.
+# Copyright (C) 2026 Xavier Balloy
+# This file is distributed under the same license as the
+# calibre-babelio-plugin project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre-babelio-plugin 0.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-06-10 13:27-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: src/calibre_babelio/__init__.py:43
+msgid "Downloads metadata and covers from Babelio (babelio.com)"
+msgstr ""
+
+#: src/calibre_babelio/__init__.py:257 src/calibre_babelio/config.py:325
+msgid ""
+"Babelio cookie is missing or expired: paste a fresh jstsToken in the "
+"plugin settings (Preferences → Metadata download → Babelio → Configure)."
+msgstr ""
+
+#: src/calibre_babelio/__init__.py:263 src/calibre_babelio/config.py:329
+msgid "Babelio access is temporarily blocked to avoid an IP ban; try again later."
+msgstr ""
+
+#: src/calibre_babelio/config.py:128
+msgid "Babelio connection (anti-bot)"
+msgstr ""
+
+#: src/calibre_babelio/config.py:133
+msgid ""
+"Babelio blocks automated requests. The <b>jstsToken</b> cookie proves a "
+"request comes from a real logged-in browser session, so the plugin needs "
+"a copy of yours:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:138
+msgid "Open www.babelio.com in your browser and log in."
+msgstr ""
+
+#: src/calibre_babelio/config.py:141
+msgid ""
+"Open DevTools (F12) → <b>Application</b> tab → <b>Storage ▸ Cookies</b> →"
+" <code>https://www.babelio.com</code>."
+msgstr ""
+
+#: src/calibre_babelio/config.py:145
+msgid "Find the <b>jstsToken</b> row and copy its <b>Value</b>."
+msgstr ""
+
+#: src/calibre_babelio/config.py:147
+msgid "Paste it below."
+msgstr ""
+
+#: src/calibre_babelio/config.py:150
+msgid ""
+"<i>This token expires after about 3 weeks; when imports start failing, "
+"repeat these steps to paste a fresh one.</i>"
+msgstr ""
+
+#: src/calibre_babelio/config.py:164
+msgid "Paste the jstsToken value here"
+msgstr ""
+
+#: src/calibre_babelio/config.py:166
+msgid ""
+"The Babelio session cookie. Expires after about 3 weeks; paste a fresh "
+"one when imports start failing."
+msgstr ""
+
+#: src/calibre_babelio/config.py:169
+msgid "Babelio cookie (jstsToken):"
+msgstr ""
+
+#: src/calibre_babelio/config.py:174
+msgid ""
+"Sent with every request; leave as-is unless requests are being blocked. "
+"Use the same browser you copied the cookie from for best results."
+msgstr ""
+
+#: src/calibre_babelio/config.py:177
+msgid "Browser User-Agent (optional):"
+msgstr ""
+
+#: src/calibre_babelio/config.py:184
+msgid ""
+"Minimum pause between requests to Babelio. Higher is slower but safer "
+"against rate-limiting."
+msgstr ""
+
+#: src/calibre_babelio/config.py:187
+msgid "Minimum delay between requests:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:190 src/calibre_babelio/config.py:291
+#: src/calibre_babelio/config.py:314 src/calibre_babelio/config.py:319
+msgid "Test connection"
+msgstr ""
+
+#: src/calibre_babelio/config.py:201
+msgid "Metadata to import"
+msgstr ""
+
+#: src/calibre_babelio/config.py:203
+msgid "Choose which fields to fetch from Babelio."
+msgstr ""
+
+#: src/calibre_babelio/config.py:207
+msgid "Comments"
+msgstr ""
+
+#: src/calibre_babelio/config.py:208
+msgid "Published date"
+msgstr ""
+
+#: src/calibre_babelio/config.py:209
+msgid "Publisher"
+msgstr ""
+
+#: src/calibre_babelio/config.py:210
+msgid "Rating"
+msgstr ""
+
+#: src/calibre_babelio/config.py:211
+msgid "Series"
+msgstr ""
+
+#: src/calibre_babelio/config.py:212
+msgid "Tags"
+msgstr ""
+
+#: src/calibre_babelio/config.py:221
+msgid "Advanced options"
+msgstr ""
+
+#: src/calibre_babelio/config.py:229
+msgid ""
+"How many search hits to look up; higher finds more but is slower and "
+"riskier."
+msgstr ""
+
+#: src/calibre_babelio/config.py:231
+msgid "Max results:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:233
+msgid "Allow cover download"
+msgstr ""
+
+#: src/calibre_babelio/config.py:238
+msgid "Higher = more diagnostic logging."
+msgstr ""
+
+#: src/calibre_babelio/config.py:239
+msgid "Verbosity:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:245
+msgid "Tag relevance thresholds"
+msgstr ""
+
+#: src/calibre_babelio/config.py:249
+msgid ""
+"Babelio scores each tag by how strongly readers associate it with the book: "
+"its <b>relevance</b>. For each category, only tags scoring <b>at or above</b> "
+"your threshold are imported; the rest are dropped. <b>Higher = stricter</b> "
+"(fewer, more popular tags); <b>0 = keep every tag</b>. The default of 12 "
+"keeps widely-shared tags and filters out one-offs."
+msgstr ""
+
+#: src/calibre_babelio/config.py:265
+msgid ""
+"Minimum Babelio relevance score (0–100) a tag must reach to be imported in "
+"this category. 0 keeps all tags; higher keeps only the most popular."
+msgstr ""
+
+#: src/calibre_babelio/config.py:255
+msgid "Genre:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:256
+msgid "Thème:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:257
+msgid "Lieu:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:258
+msgid "Quand:"
+msgstr ""
+
+#: src/calibre_babelio/config.py:291
+msgid "Enter a jstsToken cookie first."
+msgstr ""
+
+#: src/calibre_babelio/config.py:296
+msgid "Testing…"
+msgstr ""
+
+#: src/calibre_babelio/config.py:312
+msgid "Connection OK"
+msgstr ""
+
+#: src/calibre_babelio/config.py:330
+#, python-brace-format
+msgid "Connection failed: {error}"
+msgstr ""
+
+#: src/calibre_babelio/config.py:338
+msgid "Babelio settings"
+msgstr ""
+
+#: src/calibre_babelio/config.py:339
+msgid ""
+"The Babelio cookie and User-Agent are both required for imports to work. "
+"Saving anyway, but identify will fail until they are filled in."
+msgstr ""
+
