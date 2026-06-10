@@ -34,7 +34,7 @@ addopts = "--cov --cov-report=term-missing"
 
 [tool.coverage.run]
 branch = true
-source = ["calibre_babelio.parser"]
+source = ["calibre_babelio.parser", "calibre_babelio.query"]
 
 [tool.coverage.report]
 show_missing = true
