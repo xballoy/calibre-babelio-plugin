@@ -13,16 +13,15 @@ def _query(
     return build_search_query(title=title, authors=authors, isbn=isbn)
 
 
-def test_herisson_example_surfaces_target_at_rank_zero() -> None:
-    # this deburred form returns the target at rank 0.
+def test_herisson_example_is_sent_near_verbatim() -> None:
     assert _query(title="L'élégance du hérisson", authors=["Barbery"]) == (
-        "elegance herisson barbery"
+        "L'élégance du hérisson Barbery"
     )
 
 
 def test_full_author_name_keeps_first_name() -> None:
     assert _query(title="L'élégance du hérisson", authors=["Muriel Barbery"]) == (
-        "elegance herisson muriel barbery"
+        "L'élégance du hérisson Muriel Barbery"
     )
 
 
@@ -45,45 +44,69 @@ def test_valid_isbn_takes_precedence_over_title() -> None:
 
 
 def test_invalid_isbn_checksum_falls_through_to_title() -> None:
-    assert _query(title="Oz", isbn="9782226244330") == "oz"
+    assert _query(title="Oz", isbn="9782226244330") == "Oz"
 
 
 def test_misplaced_x_in_isbn10_is_invalid() -> None:
-    assert _query(title="Oz", isbn="12345X789X") == "oz"
+    assert _query(title="Oz", isbn="12345X789X") == "Oz"
 
 
 def test_invalid_isbn_with_no_title_or_author_is_none() -> None:
     assert _query(isbn="0000000001") is None
 
 
-def test_diacritics_are_removed() -> None:
-    assert _query(title="à côté de l'âtre") == "cote atre"
+def test_diacritics_are_kept() -> None:
+    assert _query(title="à côté de l'âtre") == "à côté de l'âtre"
 
 
-def test_two_letter_real_word_is_kept() -> None:
-    assert _query(title="Autre-Monde, tome 5 : Oz") == "autre monde tome oz"
+def test_punctuation_is_kept() -> None:
+    assert _query(title="Autre-Monde, tome 5 : Oz") == "Autre-Monde, tome 5 : Oz"
 
 
-def test_stopwords_are_dropped_anywhere_not_just_leading() -> None:
-    assert _query(title="Le Comte de Monte Cristo") == "comte monte cristo"
+def test_stopwords_are_kept() -> None:
+    assert _query(title="Le Comte de Monte Cristo") == "Le Comte de Monte Cristo"
+
+
+def test_apostrophe_is_kept() -> None:
+    # stripping it splits "t'arrache" into "t arrache", which Babelio won't match to "tarrache"
+    assert _query(title="Et la vie t'arrache à moi", authors=["Hendrickx Virginie"]) == (
+        "Et la vie t'arrache à moi Hendrickx Virginie"
+    )
+
+
+def test_leading_article_is_kept() -> None:
+    # dropping the article lets a fuzzy mismatch outrank the target on Babelio
+    assert _query(title="La colocataire", authors=["Sarah Bailey"]) == "La colocataire Sarah Bailey"
+
+
+def test_typographic_apostrophe_is_mapped_to_ascii() -> None:
+    assert _query(title="L’élégance") == "L'élégance"
+
+
+def test_typographic_dashes_and_ellipsis_are_mapped_to_ascii() -> None:
+    assert _query(title="A–B—C…") == "A-B-C..."
+
+
+def test_non_latin1_characters_are_dropped() -> None:
+    assert _query(title="Café ☕ 你好", authors=["Zola"]) == "Café Zola"
 
 
 def test_multiple_authors_are_joined() -> None:
     assert _query(title="Boule de suif", authors=["Guy de Maupassant", "Émile Zola"]) == (
-        "boule suif guy maupassant emile zola"
+        "Boule de suif Guy de Maupassant Émile Zola"
     )
 
 
 def test_empty_author_strings_are_ignored() -> None:
-    assert _query(title="Oz", authors=["", "Chattam"]) == "oz chattam"
+    assert _query(title="Oz", authors=["", "Chattam"]) == "Oz Chattam"
 
 
 def test_author_only_query() -> None:
-    assert _query(authors=["Maxime Chattam"]) == "maxime chattam"
+    assert _query(authors=["Maxime Chattam"]) == "Maxime Chattam"
 
 
-def test_all_stopword_title_falls_back_to_deburred_tokens() -> None:
-    assert _query(title="Le La Les") == "le la les"
+def test_title_reduced_to_only_non_latin1_returns_none() -> None:
+    assert _query(title="你好世界") is None
 
 
 @pytest.mark.parametrize(

@@ -3,18 +3,14 @@
 from __future__ import annotations
 
 import re
-import unicodedata
 from collections.abc import Sequence
 
 _NON_ISBN = re.compile(r"[^0-9Xx]")
-_PUNCT = re.compile(r"[^a-z0-9]+")  # applied after deburr+lowercase, so the input is ASCII
 
-_MIN_TOKEN_LEN = 2
-
-# Leading articles and short French stop tokens; dropped wherever they appear (the validated
-# hérisson example drops a mid-string "du", not just a leading article).
-_STOPWORDS = frozenset(
-    {"le", "la", "les", "un", "une", "des", "du", "de", "et", "ou", "au", "aux", "en"}
+# Babelio folds case/accents/punctuation itself; we map these to ASCII only so apostrophes survive
+# and the term stays encodable in client.py's ISO-8859-1 request body.
+_TYPOGRAPHIC = str.maketrans(
+    {"‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-", "…": "..."}
 )
 
 
@@ -24,8 +20,8 @@ def build_search_query(
     authors: Sequence[str] | None,
     isbn: str | None,
 ) -> str | None:
-    """Build the Babelio search term: a valid ISBN/EAN verbatim, else the deburred,
-    article-stripped, lowercased title/authors. `None` when no usable input."""
+    """Build the Babelio search term: a valid ISBN/EAN verbatim, else the near-verbatim
+    title/authors. `None` when no usable input."""
     if isbn:
         normalized = _normalize_isbn(isbn)
         if normalized is not None:
@@ -37,10 +33,7 @@ def build_search_query(
     if authors:
         terms.extend(author for author in authors if author)
 
-    text = " ".join(terms).strip()
-    if not text:
-        return None
-    return _deburr_terms(text) or None
+    return _normalize_terms(" ".join(terms))
 
 
 def _normalize_isbn(raw: str) -> str | None:
@@ -73,15 +66,8 @@ def _isbn10_checksum_ok(ten: str) -> bool:
     return total % 11 == 0
 
 
-def _deburr_terms(text: str) -> str:
-    cleaned = _PUNCT.sub(" ", _strip_accents(text).lower())
-    tokens = cleaned.split()
-    kept = [token for token in tokens if len(token) >= _MIN_TOKEN_LEN and token not in _STOPWORDS]
-    # Never emit an empty query for non-empty input: if every token was dropped (e.g. a title made
-    # entirely of articles), fall back to the deburred tokens unfiltered.
-    return " ".join(kept) if kept else " ".join(tokens)
-
-
-def _strip_accents(text: str) -> str:
-    nfkd = unicodedata.normalize("NFKD", text)
-    return "".join(char for char in nfkd if not unicodedata.combining(char))
+def _normalize_terms(text: str) -> str | None:
+    mapped = text.translate(_TYPOGRAPHIC)
+    latin1_safe = mapped.encode("iso-8859-1", "ignore").decode("iso-8859-1")
+    normalized = " ".join(latin1_safe.split())
+    return normalized if any(char.isalnum() for char in normalized) else None
