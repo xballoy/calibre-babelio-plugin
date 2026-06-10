@@ -70,7 +70,7 @@ wheels = [
 
 [[package]]
 name = "calibre-babelio-plugin"
-version = "0.1.0"
+version = "0.0.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]

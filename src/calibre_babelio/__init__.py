@@ -32,7 +32,7 @@ class Babelio(Source):  # type: ignore[misc]
     name = "Babelio"
     description = _("Downloads metadata and covers from Babelio (babelio.com)")
     author = "Xavier Balloy"
-    version = (0, 1, 0)
+    version = (0, 0, 0)
     minimum_calibre_version = (6, 0, 0)
 
     capabilities = frozenset({"identify", "cover"})

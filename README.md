@@ -98,6 +98,20 @@ and variables → Actions*), never from a workflow input, so the token is never 
 Actions UI. Refresh the secret when the token expires (~3 weeks). The optional `user_agent` input
 overrides the User-Agent for the run.
 
+### Releasing
+
+Versioning and the changelog are managed with [changesets](https://github.com/changesets/changesets).
+When you make a user-facing change, add a changeset describing it:
+
+```sh
+pnpm changeset                       # pick the bump level, write a summary
+```
+
+Commit the generated `.changeset/*.md` file alongside your change. On merge to `main`, CI opens a
+**Version Packages** PR that bumps the version (in `package.json`, `pyproject.toml`, and the plugin's
+`version` tuple) and regenerates `CHANGELOG.md`. Merging that PR builds `dist/babelio.zip` and cuts
+the GitHub Release.
+
 ## License
 
 [MIT](LICENSE.md) © 2026 Xavier Balloy.
