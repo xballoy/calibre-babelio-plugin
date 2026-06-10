@@ -24,7 +24,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Protocol
 
-from calibre_babelio.errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
+from .errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
 
 _BASE_URL = "https://www.babelio.com"
 _ACCEPT_LANGUAGE = "fr-FR,fr;q=0.9"

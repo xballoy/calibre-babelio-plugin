@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from queue import Queue
     from threading import Event
 
-    from calibre_babelio.config import ConfigWidget
-    from calibre_babelio.worker import LogProtocol, MetadataProtocol, Worker
+    from .config import ConfigWidget
+    from .worker import LogProtocol, MetadataProtocol, Worker
 
     def _(text: str) -> str: ...
     def load_translations() -> None: ...
@@ -69,7 +69,7 @@ class Babelio(Source):  # type: ignore[misc]
         return True
 
     def config_widget(self) -> ConfigWidget:
-        from calibre_babelio.config import ConfigWidget
+        from .config import ConfigWidget
 
         return ConfigWidget()
 
@@ -110,12 +110,12 @@ class Babelio(Source):  # type: ignore[misc]
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.utils.date import parse_only_date
 
-        from calibre_babelio.client import BabelioClient
-        from calibre_babelio.config import prefs, worker_config_from_prefs
-        from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
-        from calibre_babelio.parser import parse_search_results
-        from calibre_babelio.query import build_search_query
-        from calibre_babelio.worker import Worker, WorkerContext
+        from .client import BabelioClient
+        from .config import prefs, worker_config_from_prefs
+        from .errors import BabelioBlocked, CircuitBreakerOpen
+        from .parser import parse_search_results
+        from .query import build_search_query
+        from .worker import Worker, WorkerContext
 
         client = BabelioClient(
             self.browser,
@@ -165,7 +165,7 @@ class Babelio(Source):  # type: ignore[misc]
         return self._run_workers(workers, abort)
 
     def _run_workers(self, workers: list[Worker], abort: Event) -> str | None:
-        from calibre_babelio.errors import CircuitBreakerOpen
+        from .errors import CircuitBreakerOpen
 
         for worker in workers:
             worker.start()
@@ -193,9 +193,9 @@ class Babelio(Source):  # type: ignore[misc]
     ) -> None:
         from queue import Empty, Queue
 
-        from calibre_babelio.client import BabelioClient
-        from calibre_babelio.config import prefs
-        from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
+        from .client import BabelioClient
+        from .config import prefs
+        from .errors import BabelioBlocked, CircuitBreakerOpen
 
         if not prefs["allow_covers"]:
             log.info("Cover download disabled in Babelio settings")

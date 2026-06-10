@@ -35,9 +35,9 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre_babelio.client import ConnectionStatus
-from calibre_babelio.parser import TagCategory
-from calibre_babelio.worker import WorkerConfig
+from .client import ConnectionStatus
+from .parser import TagCategory
+from .worker import WorkerConfig
 
 if TYPE_CHECKING:
 
@@ -102,7 +102,7 @@ class _TestConnectionWorker(QThread):  # type: ignore[misc]
     def run(self) -> None:
         from calibre import browser
 
-        from calibre_babelio.client import BabelioClient, ConnectionResult
+        from .client import BabelioClient, ConnectionResult
 
         try:
             client = BabelioClient(

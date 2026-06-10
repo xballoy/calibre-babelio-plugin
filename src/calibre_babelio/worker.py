@@ -18,9 +18,9 @@ from datetime import date, datetime
 from queue import Queue
 from typing import Protocol
 
-from calibre_babelio.client import FetchResult
-from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
-from calibre_babelio.parser import (
+from .client import FetchResult
+from .errors import BabelioBlocked, CircuitBreakerOpen
+from .parser import (
     BabelioBook,
     SearchHit,
     TagCategory,
