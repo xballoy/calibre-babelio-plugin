@@ -5,9 +5,12 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 const { version } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-const match = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
+const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
 if (!match) {
-  throw new Error(`package.json version "${version}" is not a plain X.Y.Z version`);
+  throw new Error(
+    `package.json version "${version}" must be a plain X.Y.Z version ` +
+      "(pre-release/build metadata is unsupported)",
+  );
 }
 const [, major, minor, patch] = match;
 

@@ -107,10 +107,11 @@ When you make a user-facing change, add a changeset describing it:
 pnpm changeset                       # pick the bump level, write a summary
 ```
 
-Commit the generated `.changeset/*.md` file alongside your change. On merge to `main`, CI opens a
-**Version Packages** PR that bumps the version (in `package.json`, `pyproject.toml`, and the plugin's
-`version` tuple) and regenerates `CHANGELOG.md`. Merging that PR builds `dist/babelio.zip` and cuts
-the GitHub Release.
+Commit the generated `.changeset/*.md` file alongside your change. On merge to `main`, CI keeps a
+**Version Packages** PR open that batches all pending changesets, bumps the version (in
+`package.json`, `pyproject.toml`, and the plugin's `version` tuple), and regenerates `CHANGELOG.md`.
+Release when ready by merging that PR **through the GitHub UI** (so the merge commit is signed, as
+the `main` ruleset requires); that builds `dist/babelio.zip` and cuts the GitHub Release.
 
 ## License
 
