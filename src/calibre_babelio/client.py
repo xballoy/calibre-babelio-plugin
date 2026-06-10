@@ -110,12 +110,24 @@ class BabelioClient:
         return self._fetch(f"{_BASE_URL}/livres/{babelio_id}", None, {}, timeout)
 
     def search(
-        self, terms: str, *, timeout: float = 30.0, record_blocks: bool = True
+        self,
+        terms: str,
+        *,
+        timeout: float = 30.0,
+        record_blocks: bool = True,
+        check_circuit: bool = True,
     ) -> FetchResult:
         data = urllib.parse.urlencode({"Recherche": terms}, encoding=_BODY_ENCODING).encode(
             _BODY_ENCODING
         )
-        return self._fetch(f"{_BASE_URL}/recherche", data, {}, timeout, record_blocks=record_blocks)
+        return self._fetch(
+            f"{_BASE_URL}/recherche",
+            data,
+            {},
+            timeout,
+            record_blocks=record_blocks,
+            check_circuit=check_circuit,
+        )
 
     def get_full_summary(
         self, summary_type: int, obj_id: int, referer: str, *, timeout: float = 30.0
@@ -128,7 +140,7 @@ class BabelioClient:
 
     def test_connection(self, *, timeout: float = 10.0) -> ConnectionResult:
         try:
-            self.search("test", timeout=timeout, record_blocks=False)
+            self.search("test", timeout=timeout, record_blocks=False, check_circuit=False)
         except BabelioBlocked:
             return ConnectionResult(False, _TOKEN_EXPIRED_MESSAGE)
         except CircuitBreakerOpen as exc:
@@ -145,8 +157,10 @@ class BabelioClient:
         timeout: float,
         *,
         record_blocks: bool = True,
+        check_circuit: bool = True,
     ) -> FetchResult:
-        self._check_circuit()
+        if check_circuit:
+            self._check_circuit()
         self._wait_rate_limit()
         try:
             response = self._browser.open(url, data, timeout, headers=extra_headers)
