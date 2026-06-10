@@ -121,7 +121,7 @@ class Worker(threading.Thread):
             self.error = exc
             ctx.log.error("Babelio blocked while fetching", babelio_id, exc)
             return
-        except Exception:  # noqa: BLE001 — one failed book must not abort the whole identify run.
+        except Exception:  # noqa: BLE001 - one failed book must not abort the whole identify run.
             ctx.log.exception("Failed to fetch Babelio book", babelio_id)
             return
 
@@ -134,7 +134,7 @@ class Worker(threading.Thread):
             ctx.plugin.clean_downloaded_metadata(mi)
             self.result = mi
             ctx.result_queue.put(mi)
-        except Exception:  # noqa: BLE001 — a malformed page must not abort the whole identify run.
+        except Exception:  # noqa: BLE001 - a malformed page must not abort the whole identify run.
             ctx.log.exception("Failed to parse Babelio book", babelio_id)
 
     def _build_metadata(
@@ -190,7 +190,7 @@ class Worker(threading.Thread):
         try:
             fragment = ctx.client.get_full_summary(full_type, full_id, referer)
             full = parse_full_summary(fragment.body)
-        except Exception:  # noqa: BLE001 — the page already succeeded; keep the truncated résumé.
+        except Exception:  # noqa: BLE001 - the page already succeeded; keep the truncated résumé.
             ctx.log.exception("Failed to fetch full Babelio résumé", referer)
             return book.summary
         return full or book.summary

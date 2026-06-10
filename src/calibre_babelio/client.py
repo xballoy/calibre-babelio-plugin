@@ -130,7 +130,7 @@ class BabelioClient:
     def _setup_browser(self) -> None:
         self._browser.set_user_agent(self._user_agent)
         self._browser.set_header("Accept-Language", _ACCEPT_LANGUAGE)
-        # Host-only on www.babelio.com — not broadened to .babelio.com.
+        # Host-only on www.babelio.com, not broadened to .babelio.com.
         self._browser.set_simple_cookie(_COOKIE_NAME, self._cookie, _COOKIE_DOMAIN)
 
     def get_book_page(self, babelio_id: str, *, timeout: float = 30.0) -> FetchResult:
@@ -177,7 +177,7 @@ class BabelioClient:
             return ConnectionResult(ConnectionStatus.TOKEN_EXPIRED)
         except CircuitBreakerOpen as exc:
             return ConnectionResult(ConnectionStatus.CIRCUIT_OPEN, str(exc))
-        except Exception as exc:  # noqa: BLE001 — UI button must report any failure, never raise.
+        except Exception as exc:  # noqa: BLE001 - UI button must report any failure, never raise.
             return ConnectionResult(ConnectionStatus.ERROR, str(exc))
         return ConnectionResult(ConnectionStatus.OK)
 

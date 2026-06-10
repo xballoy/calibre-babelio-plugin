@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 _TOKEN_EXPIRED_MESSAGE = (
-    "Babelio jstsToken is missing or expired — copy a fresh one from your browser "
+    "Babelio jstsToken is missing or expired: copy a fresh one from your browser "
     "(DevTools → Application → Cookies → www.babelio.com → jstsToken) into plugin settings."
 )
 
 
 class BabelioBlocked(Exception):
-    """Raised on HTTP 403 — a missing, expired, or invalid `jstsToken`."""
+    """Raised on HTTP 403: a missing, expired, or invalid `jstsToken`."""
 
 
 class CircuitBreakerOpen(Exception):

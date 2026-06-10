@@ -25,10 +25,10 @@ msgstr "Télécharge les métadonnées et les couvertures depuis Babelio (babeli
 
 #: src/calibre_babelio/__init__.py:257 src/calibre_babelio/config.py:325
 msgid ""
-"Babelio cookie is missing or expired — paste a fresh jstsToken in the "
+"Babelio cookie is missing or expired: paste a fresh jstsToken in the "
 "plugin settings (Preferences → Metadata download → Babelio → Configure)."
 msgstr ""
-"Le cookie Babelio est manquant ou expiré — collez un nouveau jstsToken dans "
+"Le cookie Babelio est manquant ou expiré : collez un nouveau jstsToken dans "
 "les paramètres de l'extension (Préférences → Téléchargement des métadonnées → "
 "Babelio → Configurer)."
 
@@ -74,10 +74,10 @@ msgstr "Collez-le ci-dessous."
 
 #: src/calibre_babelio/config.py:150
 msgid ""
-"<i>This token expires after about 3 weeks — when imports start failing, "
+"<i>This token expires after about 3 weeks; when imports start failing, "
 "repeat these steps to paste a fresh one.</i>"
 msgstr ""
-"<i>Ce jeton expire après environ 3 semaines — lorsque les imports commencent "
+"<i>Ce jeton expire après environ 3 semaines ; lorsque les imports commencent "
 "à échouer, répétez ces étapes pour en coller un nouveau.</i>"
 
 #: src/calibre_babelio/config.py:164
@@ -164,10 +164,10 @@ msgstr "Options avancées"
 
 #: src/calibre_babelio/config.py:229
 msgid ""
-"How many search hits to look up — higher finds more but is slower and "
+"How many search hits to look up; higher finds more but is slower and "
 "riskier."
 msgstr ""
-"Nombre de résultats de recherche à consulter — plus il est élevé, plus on "
+"Nombre de résultats de recherche à consulter ; plus il est élevé, plus on "
 "trouve, mais c'est plus lent et plus risqué."
 
 #: src/calibre_babelio/config.py:231
@@ -192,14 +192,14 @@ msgstr "Seuils de pertinence des étiquettes"
 
 #: src/calibre_babelio/config.py:249
 msgid ""
-"Babelio scores each tag by how strongly readers associate it with the book — "
+"Babelio scores each tag by how strongly readers associate it with the book: "
 "its <b>relevance</b>. For each category, only tags scoring <b>at or above</b> "
 "your threshold are imported; the rest are dropped. <b>Higher = stricter</b> "
 "(fewer, more popular tags); <b>0 = keep every tag</b>. The default of 12 "
 "keeps widely-shared tags and filters out one-offs."
 msgstr ""
 "Babelio attribue à chaque étiquette un score reflétant la force avec laquelle "
-"les lecteurs l'associent au livre — sa <b>pertinence</b>. Pour chaque "
+"les lecteurs l'associent au livre : sa <b>pertinence</b>. Pour chaque "
 "catégorie, seules les étiquettes dont le score est <b>supérieur ou égal</b> à "
 "votre seuil sont importées ; les autres sont écartées. <b>Plus élevé = plus "
 "strict</b> (moins d'étiquettes, mais plus populaires) ; <b>0 = conserver "

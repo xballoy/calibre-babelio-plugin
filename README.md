@@ -9,11 +9,11 @@ It stores a `babelio_id` identifier in the same format as the older, unmaintaine
 [`lrpirlet/cal-babelio_db`](https://github.com/lrpirlet/cal-babelio_db) plugin, so libraries already
 populated by that plugin keep working.
 
-## How it works — the `jstsToken` cookie
+## How it works: the `jstsToken` cookie
 
 Babelio gates access behind a JavaScript-challenge cookie: headless requests get **HTTP 403** unless
 they carry a valid, browser-obtained **`jstsToken`** cookie. The plugin therefore cannot work until
-you paste a fresh token into its settings. There is no way around this — the token is the single
+you paste a fresh token into its settings. There is no way around this; the token is the single
 thing that unlocks access.
 
 ### Where to get the token
@@ -23,14 +23,14 @@ thing that unlocks access.
    **Cookies** → `https://www.babelio.com`.
 3. Copy the **value** of the cookie named **`jstsToken`**.
 
-The cookie is `HttpOnly`, so it is **not** readable from the JavaScript console — you must copy it
+The cookie is `HttpOnly`, so it is **not** readable from the JavaScript console; you must copy it
 from the Cookies panel. It is also `Secure` (HTTPS only) and host-only to `www.babelio.com`.
 
 ### Lifetime and expiry
 
 A pasted token is usable for **about three weeks** (≈ 21 days), though Babelio may invalidate it
-sooner after an IP change or abuse. When it expires, identify returns a translated message —
-*"Babelio cookie is missing or expired — paste a fresh jstsToken in the plugin settings"* — and the
+sooner after an IP change or abuse. When it expires, identify returns a translated message,
+*"Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin settings"*, and the
 plugin stops calling Babelio. Just copy a fresh token from your browser and paste it again.
 
 ## Requirements
@@ -50,14 +50,14 @@ After installing, open *Preferences → Metadata download* and make sure **Babel
 
 Open *Preferences → Metadata download → Babelio → Configure*:
 
-- **jstsToken** — the cookie value described above (required).
-- **User-Agent** — optional; defaults to a recent Chrome string. Kept as a safety lever in case
+- **jstsToken**: the cookie value described above (required).
+- **User-Agent**: optional; defaults to a recent Chrome string. Kept as a safety lever in case
   Babelio later binds the token to a User-Agent.
-- **Min request interval** — seconds between requests (default 1.2). Keep this reasonable.
-- **Test connection** — does one live request and reports whether the token is valid.
-- **Metadata to import** — toggles for comments, publication date, publisher, rating, series, tags.
+- **Min request interval**: seconds between requests (default 1.2). Keep this reasonable.
+- **Test connection**: does one live request and reports whether the token is valid.
+- **Metadata to import**: toggles for comments, publication date, publisher, rating, series, tags.
 - **Max results**, **Allow covers**, **Verbosity**.
-- **Tag relevance thresholds** — minimum Babelio relevance for genre / theme / place / period tags.
+- **Tag relevance thresholds**: minimum Babelio relevance for genre / theme / place / period tags.
 
 ## Responsible use
 
@@ -100,4 +100,4 @@ overrides the User-Agent for the run.
 
 ## License
 
-[MIT](LICENSE) — © 2026 Xavier Balloy.
+[MIT](LICENSE.md) © 2026 Xavier Balloy.

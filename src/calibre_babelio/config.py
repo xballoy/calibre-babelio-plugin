@@ -103,7 +103,7 @@ class _TestConnectionWorker(QThread):  # type: ignore[misc]
                 min_interval=self._min_interval,
             )
             result = client.test_connection()
-        except Exception as exc:  # noqa: BLE001 — UI worker must never raise across the thread.
+        except Exception as exc:  # noqa: BLE001 - UI worker must never raise across the thread.
             result = ConnectionResult(ConnectionStatus.ERROR, str(exc))
         self.result_ready.emit(result)
 
@@ -141,7 +141,7 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
             + _("Paste it below.")
             + "</li></ol>"
             + _(
-                "<i>This token expires after about 3 weeks — when imports start failing, repeat "
+                "<i>This token expires after about 3 weeks; when imports start failing, repeat "
                 "these steps to paste a fresh one.</i>"
             ),
             group,
@@ -220,7 +220,7 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         self.max_results = QSpinBox(group)
         self.max_results.setRange(1, 20)
         self.max_results.setToolTip(
-            _("How many search hits to look up — higher finds more but is slower and riskier.")
+            _("How many search hits to look up; higher finds more but is slower and riskier.")
         )
         form.addRow(_("Max results:"), self.max_results)
 
@@ -240,7 +240,7 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         outer = QVBoxLayout(group)
         intro = QLabel(
             _(
-                "Babelio scores each tag by how strongly readers associate it with the book — its "
+                "Babelio scores each tag by how strongly readers associate it with the book: its "
                 "<b>relevance</b>. For each category, only tags scoring <b>at or above</b> your "
                 "threshold are imported; the rest are dropped. <b>Higher = stricter</b> (fewer, "
                 "more popular tags); <b>0 = keep every tag</b>. The default of 12 keeps "
@@ -330,7 +330,7 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
     def _connection_error_message(status: ConnectionStatus, detail: str) -> str:
         if status is ConnectionStatus.TOKEN_EXPIRED:
             return _(
-                "Babelio cookie is missing or expired — paste a fresh jstsToken in the plugin "
+                "Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin "
                 "settings (Preferences → Metadata download → Babelio → Configure)."
             )
         if status is ConnectionStatus.CIRCUIT_OPEN:

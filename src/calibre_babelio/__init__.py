@@ -94,7 +94,7 @@ class Babelio(Source):  # type: ignore[misc]
         abort: Event,
         title: str | None = None,
         authors: list[str] | None = None,
-        identifiers: Mapping[str, str] = {},  # noqa: B006 — Calibre's documented signature.
+        identifiers: Mapping[str, str] = {},  # noqa: B006 - Calibre's documented signature.
         timeout: int = 30,
     ) -> str | None:
         from calibre.ebooks.metadata.book.base import Metadata
@@ -181,7 +181,7 @@ class Babelio(Source):  # type: ignore[misc]
         abort: Event,
         title: str | None = None,
         authors: list[str] | None = None,
-        identifiers: Mapping[str, str] = {},  # noqa: B006 — Calibre's documented signature.
+        identifiers: Mapping[str, str] = {},  # noqa: B006 - Calibre's documented signature.
         timeout: int = 30,
         get_best_cover: bool = False,
     ) -> None:
@@ -240,7 +240,7 @@ class Babelio(Source):  # type: ignore[misc]
         except (BabelioBlocked, CircuitBreakerOpen) as exc:
             log.error("Babelio blocked the cover download:", exc)
             return
-        except Exception:  # noqa: BLE001 — a cover failure must never bubble out of download_cover.
+        except Exception:  # noqa: BLE001 - a cover failure must never bubble out of download_cover.
             log.exception("Failed to download Babelio cover from:", cached_url)
             return
         if cdata:
@@ -249,7 +249,7 @@ class Babelio(Source):  # type: ignore[misc]
     @staticmethod
     def _cookie_expired_message() -> str:
         return _(
-            "Babelio cookie is missing or expired — paste a fresh jstsToken in the plugin "
+            "Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin "
             "settings (Preferences → Metadata download → Babelio → Configure)."
         )
 

@@ -321,7 +321,7 @@ def test_ajax_failure_falls_back_to_truncated_summary() -> None:
 
     worker = _run(_CHATTAM_ID, ctx)
 
-    # The page already succeeded — the failed follow-up must not lose the result or set error.
+    # The page already succeeded; the failed follow-up must not lose the result or set error.
     assert worker.error is None
     mi = queue.get_nowait()
     assert isinstance(mi, FakeMetadata)

@@ -25,7 +25,7 @@ msgstr ""
 
 #: src/calibre_babelio/__init__.py:257 src/calibre_babelio/config.py:325
 msgid ""
-"Babelio cookie is missing or expired — paste a fresh jstsToken in the "
+"Babelio cookie is missing or expired: paste a fresh jstsToken in the "
 "plugin settings (Preferences → Metadata download → Babelio → Configure)."
 msgstr ""
 
@@ -64,7 +64,7 @@ msgstr ""
 
 #: src/calibre_babelio/config.py:150
 msgid ""
-"<i>This token expires after about 3 weeks — when imports start failing, "
+"<i>This token expires after about 3 weeks; when imports start failing, "
 "repeat these steps to paste a fresh one.</i>"
 msgstr ""
 
@@ -145,7 +145,7 @@ msgstr ""
 
 #: src/calibre_babelio/config.py:229
 msgid ""
-"How many search hits to look up — higher finds more but is slower and "
+"How many search hits to look up; higher finds more but is slower and "
 "riskier."
 msgstr ""
 
@@ -171,7 +171,7 @@ msgstr ""
 
 #: src/calibre_babelio/config.py:249
 msgid ""
-"Babelio scores each tag by how strongly readers associate it with the book — "
+"Babelio scores each tag by how strongly readers associate it with the book: "
 "its <b>relevance</b>. For each category, only tags scoring <b>at or above</b> "
 "your threshold are imported; the rest are dropped. <b>Higher = stricter</b> "
 "(fewer, more popular tags); <b>0 = keep every tag</b>. The default of 12 "

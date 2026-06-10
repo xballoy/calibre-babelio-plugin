@@ -1,4 +1,4 @@
-"""Live integration tests against real Babelio — opt-in, gated on `BABELIO_COOKIE`.
+"""Live integration tests against real Babelio: opt-in, gated on `BABELIO_COOKIE`.
 
 Skipped unless `BABELIO_COOKIE` is set (a fresh `jstsToken`; `BABELIO_UA` optionally
 overrides the User-Agent). Run explicitly with::
@@ -139,4 +139,4 @@ def test_repeated_blocks_trip_circuit_breaker(tmp_path: Path) -> None:
     assert lockfile.exists()
 
     with pytest.raises(CircuitBreakerOpen):
-        client.search("test")  # circuit open — refused before any network call
+        client.search("test")  # circuit open; refused before any network call
