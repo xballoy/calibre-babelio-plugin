@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -32,4 +33,7 @@ rewrite(
   `$1version = (${major}, ${minor}, ${patch})`,
 );
 
-console.log(`Synced version ${version} into pyproject.toml and __init__.py`);
+// pyproject's version feeds uv.lock, so refresh the lock in the same step or it ships stale.
+execFileSync("uv", ["lock"], { cwd: root, stdio: "inherit" });
+
+console.log(`Synced version ${version} into pyproject.toml, __init__.py, and uv.lock`);

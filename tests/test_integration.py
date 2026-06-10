@@ -90,6 +90,15 @@ def _live_client() -> BabelioClient:
     return _client(os.environ["BABELIO_COOKIE"])
 
 
+def test_live_token_is_valid() -> None:
+    """CI preflight gate, run alone before the live tests to fail fast on a stale cookie."""
+    # test_connection's search is non-recording, so this gate never advances the breaker.
+    result = _live_client().test_connection()
+    assert result.status is ConnectionStatus.OK, (
+        f"BABELIO_COOKIE did not authenticate: {result.status.value} {result.detail}".strip()
+    )
+
+
 def test_identify_known_babelio_id() -> None:
     book = parse_book_page(_live_client().get_book_page(_CHATTAM_ID).body)
 
@@ -105,9 +114,9 @@ def test_identify_by_isbn_search() -> None:
     query = build_search_query(
         title="L'élégance du hérisson",
         authors=["Muriel Barbery"],
-        isbn="9782070396733",
+        isbn="9782070391653",
     )
-    assert query == "9782070396733"  # a valid ISBN searches by exact EAN
+    assert query == "9782070391653"  # a valid ISBN searches by exact EAN
 
     hits = parse_search_results(client.search(query).body)
     assert hits, "expected at least one search hit for the hérisson ISBN"

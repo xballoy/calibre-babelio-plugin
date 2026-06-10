@@ -290,7 +290,7 @@ if __name__ == "__main__":
                 {
                     "title": "L'élégance du hérisson",
                     "authors": ["Muriel Barbery"],
-                    "identifiers": {"isbn": "9782070396733"},
+                    "identifiers": {"isbn": "9782070391653"},
                 },
                 [
                     title_test("hérisson", exact=False),
