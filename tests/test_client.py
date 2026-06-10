@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import urllib.error
+from collections.abc import Mapping
+from pathlib import Path
+
+import pytest
+
+from calibre_babelio.client import BabelioClient, _full_resolution_url
+from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
+
+_COVER_URL = "https://www.babelio.com/couv/CVT_CVT_Autre-Monde-Tome-5--Oz_6607.jpg"
+
+
+class FakeResponse:
+    def __init__(self, body: bytes) -> None:
+        self._body = body
+
+    def read(self) -> bytes:
+        return self._body
+
+
+class FakeBrowser:
+    def __init__(
+        self, body: bytes = b"", *, final_url: str = "", error: Exception | None = None
+    ) -> None:
+        self._body = body
+        self._final_url = final_url
+        self._error = error
+        self.user_agent: str | None = None
+        self.headers: dict[str, str] = {}
+        self.cookies: list[tuple[str, str, str]] = []
+        self.opened: list[str] = []
+
+    def set_user_agent(self, newval: str) -> None:
+        self.user_agent = newval
+
+    def set_header(self, header: str, value: str) -> None:
+        self.headers[header] = value
+
+    def set_simple_cookie(self, name: str, value: str, domain: str, path: str = "/") -> None:
+        self.cookies.append((name, value, domain))
+
+    def open(
+        self,
+        url: str,
+        data: bytes | None = None,
+        timeout: float = 30.0,
+        headers: Mapping[str, str] | None = None,
+    ) -> FakeResponse:
+        self.opened.append(url)
+        if self._error is not None:
+            raise self._error
+        return FakeResponse(self._body)
+
+    def geturl(self) -> str:
+        return self._final_url
+
+
+def _client(browser: FakeBrowser, **kwargs: object) -> BabelioClient:
+    return BabelioClient(browser, "token", "UA/1.0", min_interval=0.0, **kwargs)  # type: ignore[arg-type]
+
+
+def _http_error(code: int) -> urllib.error.HTTPError:
+    return urllib.error.HTTPError("https://example", code, "blocked", {}, None)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("https://m.media-amazon.com/I/51abc._SX318_BO1,204,203,200_.jpg",
+         "https://m.media-amazon.com/I/51abc.jpg"),
+        ("https://m.media-amazon.com/I/51abc._SY475_.jpg",
+         "https://m.media-amazon.com/I/51abc.jpg"),
+        (_COVER_URL, _COVER_URL),
+        ("https://www.babelio.com/couv/plain.jpg", "https://www.babelio.com/couv/plain.jpg"),
+    ],
+)
+def test_full_resolution_url(url: str, expected: str) -> None:
+    assert _full_resolution_url(url) == expected
+
+
+def test_fetch_image_returns_body_and_sets_auth_headers() -> None:
+    browser = FakeBrowser(b"\x89PNG-bytes", final_url=_COVER_URL)
+    client = _client(browser)
+
+    data = client.fetch_image(_COVER_URL, timeout=5.0)
+
+    assert data == b"\x89PNG-bytes"
+    assert browser.opened == [_COVER_URL]
+    assert browser.user_agent == "UA/1.0"
+    assert ("jstsToken", "token", "www.babelio.com") in browser.cookies
+
+
+def test_fetch_image_strips_amazon_size_suffix() -> None:
+    browser = FakeBrowser(b"img")
+    client = _client(browser)
+
+    client.fetch_image("https://m.media-amazon.com/I/51abc._SX318_.jpg")
+
+    assert browser.opened == ["https://m.media-amazon.com/I/51abc.jpg"]
+
+
+def test_fetch_image_403_raises_blocked() -> None:
+    browser = FakeBrowser(error=_http_error(403))
+    client = _client(browser)
+
+    with pytest.raises(BabelioBlocked):
+        client.fetch_image(_COVER_URL)
+
+
+def test_fetch_image_non_403_http_error_propagates() -> None:
+    browser = FakeBrowser(error=_http_error(500))
+    client = _client(browser)
+
+    with pytest.raises(urllib.error.HTTPError):
+        client.fetch_image(_COVER_URL)
+
+
+def test_fetch_image_open_circuit_blocks_request(tmp_path: Path) -> None:
+    lockfile = tmp_path / "circuit.lock"
+    lockfile.touch()
+    browser = FakeBrowser(b"img")
+    client = _client(
+        browser,
+        lockfile_path=lockfile,
+        cooldown=3600.0,
+        _now_wall=lambda: lockfile.stat().st_mtime + 60.0,
+    )
+
+    with pytest.raises(CircuitBreakerOpen):
+        client.fetch_image(_COVER_URL)
+    assert browser.opened == []

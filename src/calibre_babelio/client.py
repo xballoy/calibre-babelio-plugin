@@ -12,6 +12,7 @@ imports neither ``calibre`` nor ``mechanize``. In production the caller passes `
 
 from __future__ import annotations
 
+import re
 import tempfile
 import threading
 import time
@@ -36,6 +37,15 @@ _DEFAULT_COOLDOWN = 23 * 3600.0
 _CIRCUIT_LOCKFILE_NAME = "calibre_babelio_circuit_breaker.lock"
 
 _HTTP_FORBIDDEN = 403
+
+# Amazon image URLs encode a size in a modifier between the id and extension, e.g.
+# ``...._SX318_BO1,204,203,200_.jpg``; dropping it yields the full-resolution original.
+_AMAZON_SIZE_RE = re.compile(r"\._S[XY]\d+_.*?(\.[A-Za-z]+)$")
+
+
+def _full_resolution_url(url: str) -> str:
+    """Strip an Amazon image size modifier for full-res. No-op on Babelio ``/couv/`` URLs."""
+    return _AMAZON_SIZE_RE.sub(r"\1", url)
 
 
 class _Response(Protocol):
@@ -128,6 +138,11 @@ class BabelioClient:
             record_blocks=record_blocks,
             check_circuit=check_circuit,
         )
+
+    def fetch_image(self, url: str, *, timeout: float = 30.0) -> bytes:
+        # Goes through the configured browser (cookie + UA), so Babelio-hosted /couv/ covers
+        # behind the wall download too; the host-only cookie isn't sent to external CDNs.
+        return self._fetch(_full_resolution_url(url), None, {}, timeout).body
 
     def get_full_summary(
         self, summary_type: int, obj_id: int, referer: str, *, timeout: float = 30.0

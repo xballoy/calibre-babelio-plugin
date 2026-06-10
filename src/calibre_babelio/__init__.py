@@ -90,6 +90,13 @@ class Babelio(Source):  # type: ignore[misc]
             return ("babelio_id", match.group("id"))
         return None
 
+    def get_cached_cover_url(self, identifiers: Mapping[str, str]) -> str | None:
+        babelio_id = identifiers.get("babelio_id")
+        if not babelio_id:
+            return None
+        url: str | None = self.cached_identifier_to_cover_url(babelio_id)
+        return url
+
     def identify(
         self,
         log: LogProtocol,
@@ -172,6 +179,77 @@ class Babelio(Source):  # type: ignore[misc]
                 return self._circuit_open_message()
             return self._cookie_expired_message()
         return None
+
+    def download_cover(
+        self,
+        log: LogProtocol,
+        result_queue: Queue[tuple[Babelio, bytes]],
+        abort: Event,
+        title: str | None = None,
+        authors: list[str] | None = None,
+        identifiers: Mapping[str, str] = {},  # noqa: B006 — Calibre's documented signature.
+        timeout: int = 30,
+        get_best_cover: bool = False,
+    ) -> None:
+        from queue import Empty, Queue
+
+        from calibre_babelio.client import BabelioClient
+        from calibre_babelio.config import prefs
+        from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
+
+        if not prefs["allow_covers"]:
+            log.info("Cover download disabled in Babelio settings")
+            return
+
+        cached_url = self.get_cached_cover_url(identifiers)
+        if cached_url is None:
+            log.info("No cached Babelio cover; running identify first")
+            rq: Queue[MetadataProtocol] = Queue()
+            self.identify(
+                log, rq, abort, title=title, authors=authors,
+                identifiers=identifiers, timeout=timeout,
+            )
+            if abort.is_set():
+                return
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            results.sort(
+                key=self.identify_results_keygen(
+                    title=title, authors=authors, identifiers=identifiers
+                )
+            )
+            for mi in results:
+                cached_url = self.get_cached_cover_url(mi.identifiers)
+                if cached_url is not None:
+                    break
+
+        if cached_url is None:
+            log.info("No Babelio cover found for", title)
+            return
+        if abort.is_set():
+            return
+
+        client = BabelioClient(
+            self.browser,
+            prefs["jsts_token"],
+            prefs["user_agent"],
+            min_interval=prefs["min_interval"],
+        )
+        log.info("Downloading Babelio cover from:", cached_url)
+        try:
+            cdata = client.fetch_image(cached_url, timeout=timeout)
+        except (BabelioBlocked, CircuitBreakerOpen) as exc:
+            log.error("Babelio blocked the cover download:", exc)
+            return
+        except Exception:  # noqa: BLE001 — a cover failure must never bubble out of download_cover.
+            log.exception("Failed to download Babelio cover from:", cached_url)
+            return
+        if cdata:
+            result_queue.put((self, cdata))
 
     @staticmethod
     def _cookie_expired_message() -> str:
