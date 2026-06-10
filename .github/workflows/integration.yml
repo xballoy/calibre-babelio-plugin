@@ -36,8 +36,14 @@ jobs:
             exit 1
           fi
 
+      - name: Preflight - fail fast if the token is invalid
+        env:
+          BABELIO_COOKIE: ${{ secrets.BABELIO_COOKIE }}
+          BABELIO_UA: ${{ inputs.user_agent }}
+        run: uv run pytest tests/test_integration.py -k test_live_token_is_valid --no-cov -v
+
       - name: Live identify against Babelio
         env:
           BABELIO_COOKIE: ${{ secrets.BABELIO_COOKIE }}
           BABELIO_UA: ${{ inputs.user_agent }}
-        run: uv run pytest tests/test_integration.py --no-cov -v
+        run: uv run pytest tests/test_integration.py -k "not test_live_token_is_valid" --no-cov -v
