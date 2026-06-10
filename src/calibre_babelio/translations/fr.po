@@ -1,0 +1,245 @@
+# French translations for calibre-babelio-plugin.
+# Copyright (C) 2026 Xavier Balloy
+# This file is distributed under the same license as the
+# calibre-babelio-plugin project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre-babelio-plugin 0.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-06-10 13:27-0400\n"
+"PO-Revision-Date: 2026-06-10 13:27-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: src/calibre_babelio/__init__.py:43
+msgid "Downloads metadata and covers from Babelio (babelio.com)"
+msgstr "Télécharge les métadonnées et les couvertures depuis Babelio (babelio.com)"
+
+#: src/calibre_babelio/__init__.py:257 src/calibre_babelio/config.py:325
+msgid ""
+"Babelio cookie is missing or expired — paste a fresh jstsToken in the "
+"plugin settings (Preferences → Metadata download → Babelio → Configure)."
+msgstr ""
+"Le cookie Babelio est manquant ou expiré — collez un nouveau jstsToken dans "
+"les paramètres de l'extension (Préférences → Téléchargement des métadonnées → "
+"Babelio → Configurer)."
+
+#: src/calibre_babelio/__init__.py:263 src/calibre_babelio/config.py:329
+msgid "Babelio access is temporarily blocked to avoid an IP ban; try again later."
+msgstr ""
+"L'accès à Babelio est temporairement bloqué pour éviter un bannissement "
+"d'adresse IP ; réessayez plus tard."
+
+#: src/calibre_babelio/config.py:128
+msgid "Babelio connection (anti-bot)"
+msgstr "Connexion Babelio (anti-bot)"
+
+#: src/calibre_babelio/config.py:133
+msgid ""
+"Babelio blocks automated requests. The <b>jstsToken</b> cookie proves a "
+"request comes from a real logged-in browser session, so the plugin needs "
+"a copy of yours:"
+msgstr ""
+"Babelio bloque les requêtes automatisées. Le cookie <b>jstsToken</b> prouve "
+"qu'une requête provient d'une véritable session de navigateur connectée ; "
+"l'extension a donc besoin d'une copie du vôtre :"
+
+#: src/calibre_babelio/config.py:138
+msgid "Open www.babelio.com in your browser and log in."
+msgstr "Ouvrez www.babelio.com dans votre navigateur et connectez-vous."
+
+#: src/calibre_babelio/config.py:141
+msgid ""
+"Open DevTools (F12) → <b>Application</b> tab → <b>Storage ▸ Cookies</b> →"
+" <code>https://www.babelio.com</code>."
+msgstr ""
+"Ouvrez les outils de développement (F12) → onglet <b>Application</b> → "
+"<b>Stockage ▸ Cookies</b> → <code>https://www.babelio.com</code>."
+
+#: src/calibre_babelio/config.py:145
+msgid "Find the <b>jstsToken</b> row and copy its <b>Value</b>."
+msgstr "Trouvez la ligne <b>jstsToken</b> et copiez sa <b>Valeur</b>."
+
+#: src/calibre_babelio/config.py:147
+msgid "Paste it below."
+msgstr "Collez-le ci-dessous."
+
+#: src/calibre_babelio/config.py:150
+msgid ""
+"<i>This token expires after about 3 weeks — when imports start failing, "
+"repeat these steps to paste a fresh one.</i>"
+msgstr ""
+"<i>Ce jeton expire après environ 3 semaines — lorsque les imports commencent "
+"à échouer, répétez ces étapes pour en coller un nouveau.</i>"
+
+#: src/calibre_babelio/config.py:164
+msgid "Paste the jstsToken value here"
+msgstr "Collez la valeur du jstsToken ici"
+
+#: src/calibre_babelio/config.py:166
+msgid ""
+"The Babelio session cookie. Expires after about 3 weeks; paste a fresh "
+"one when imports start failing."
+msgstr ""
+"Le cookie de session Babelio. Il expire après environ 3 semaines ; collez-en "
+"un nouveau lorsque les imports commencent à échouer."
+
+#: src/calibre_babelio/config.py:169
+msgid "Babelio cookie (jstsToken):"
+msgstr "Cookie Babelio (jstsToken) :"
+
+#: src/calibre_babelio/config.py:174
+msgid ""
+"Sent with every request; leave as-is unless requests are being blocked. "
+"Use the same browser you copied the cookie from for best results."
+msgstr ""
+"Envoyé à chaque requête ; laissez tel quel sauf si les requêtes sont "
+"bloquées. Utilisez le même navigateur que celui d'où vous avez copié le "
+"cookie pour de meilleurs résultats."
+
+#: src/calibre_babelio/config.py:177
+msgid "Browser User-Agent (optional):"
+msgstr "User-Agent du navigateur (facultatif) :"
+
+#: src/calibre_babelio/config.py:184
+msgid ""
+"Minimum pause between requests to Babelio. Higher is slower but safer "
+"against rate-limiting."
+msgstr ""
+"Pause minimale entre les requêtes vers Babelio. Plus elle est longue, plus "
+"c'est lent mais sûr contre la limitation de débit."
+
+#: src/calibre_babelio/config.py:187
+msgid "Minimum delay between requests:"
+msgstr "Délai minimum entre les requêtes :"
+
+#: src/calibre_babelio/config.py:190 src/calibre_babelio/config.py:291
+#: src/calibre_babelio/config.py:314 src/calibre_babelio/config.py:319
+msgid "Test connection"
+msgstr "Tester la connexion"
+
+#: src/calibre_babelio/config.py:201
+msgid "Metadata to import"
+msgstr "Métadonnées à importer"
+
+#: src/calibre_babelio/config.py:203
+msgid "Choose which fields to fetch from Babelio."
+msgstr "Choisissez les champs à récupérer depuis Babelio."
+
+#: src/calibre_babelio/config.py:207
+msgid "Comments"
+msgstr "Commentaires"
+
+#: src/calibre_babelio/config.py:208
+msgid "Published date"
+msgstr "Date de publication"
+
+#: src/calibre_babelio/config.py:209
+msgid "Publisher"
+msgstr "Éditeur"
+
+#: src/calibre_babelio/config.py:210
+msgid "Rating"
+msgstr "Note"
+
+#: src/calibre_babelio/config.py:211
+msgid "Series"
+msgstr "Série"
+
+#: src/calibre_babelio/config.py:212
+msgid "Tags"
+msgstr "Étiquettes"
+
+#: src/calibre_babelio/config.py:221
+msgid "Advanced options"
+msgstr "Options avancées"
+
+#: src/calibre_babelio/config.py:229
+msgid ""
+"How many search hits to look up — higher finds more but is slower and "
+"riskier."
+msgstr ""
+"Nombre de résultats de recherche à consulter — plus il est élevé, plus on "
+"trouve, mais c'est plus lent et plus risqué."
+
+#: src/calibre_babelio/config.py:231
+msgid "Max results:"
+msgstr "Nombre maximum de résultats :"
+
+#: src/calibre_babelio/config.py:233
+msgid "Allow cover download"
+msgstr "Autoriser le téléchargement des couvertures"
+
+#: src/calibre_babelio/config.py:238
+msgid "Higher = more diagnostic logging."
+msgstr "Plus élevé = plus de journalisation de diagnostic."
+
+#: src/calibre_babelio/config.py:239
+msgid "Verbosity:"
+msgstr "Verbosité :"
+
+#: src/calibre_babelio/config.py:245
+msgid "Tag relevance thresholds"
+msgstr "Seuils de pertinence des étiquettes"
+
+#: src/calibre_babelio/config.py:248
+msgid ""
+"Only keep tags at or above this relevance, per Babelio category (0 = keep"
+" all)."
+msgstr ""
+"Ne conserver que les étiquettes dont la pertinence est supérieure ou égale à "
+"cette valeur, par catégorie Babelio (0 = tout conserver)."
+
+#: src/calibre_babelio/config.py:255
+msgid "Genre:"
+msgstr "Genre :"
+
+#: src/calibre_babelio/config.py:256
+msgid "Thème:"
+msgstr "Thème :"
+
+#: src/calibre_babelio/config.py:257
+msgid "Lieu:"
+msgstr "Lieu :"
+
+#: src/calibre_babelio/config.py:258
+msgid "Quand:"
+msgstr "Quand :"
+
+#: src/calibre_babelio/config.py:291
+msgid "Enter a jstsToken cookie first."
+msgstr "Saisissez d'abord un cookie jstsToken."
+
+#: src/calibre_babelio/config.py:296
+msgid "Testing…"
+msgstr "Test en cours…"
+
+#: src/calibre_babelio/config.py:312
+msgid "Connection OK"
+msgstr "Connexion réussie"
+
+#: src/calibre_babelio/config.py:330
+#, python-brace-format
+msgid "Connection failed: {error}"
+msgstr "Échec de la connexion : {error}"
+
+#: src/calibre_babelio/config.py:338
+msgid "Babelio settings"
+msgstr "Paramètres Babelio"
+
+#: src/calibre_babelio/config.py:339
+msgid ""
+"The Babelio cookie and User-Agent are both required for imports to work. "
+"Saving anyway, but identify will fail until they are filled in."
+msgstr ""
+"Le cookie Babelio et le User-Agent sont tous deux requis pour que les imports "
+"fonctionnent. Enregistrement effectué quand même, mais l'identification "
+"échouera tant qu'ils ne sont pas renseignés."

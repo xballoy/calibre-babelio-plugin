@@ -20,6 +20,7 @@ import urllib.error
 import urllib.parse
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Protocol
 
@@ -72,10 +73,21 @@ class FetchResult:
     final_url: str
 
 
+class ConnectionStatus(Enum):
+    OK = "ok"
+    TOKEN_EXPIRED = "token_expired"
+    CIRCUIT_OPEN = "circuit_open"
+    ERROR = "error"
+
+
 @dataclass(frozen=True, slots=True)
 class ConnectionResult:
-    ok: bool
-    message: str
+    status: ConnectionStatus
+    detail: str = ""
+
+    @property
+    def ok(self) -> bool:
+        return self.status is ConnectionStatus.OK
 
 
 class BabelioClient:
@@ -157,12 +169,12 @@ class BabelioClient:
         try:
             self.search("test", timeout=timeout, record_blocks=False, check_circuit=False)
         except BabelioBlocked:
-            return ConnectionResult(False, _TOKEN_EXPIRED_MESSAGE)
+            return ConnectionResult(ConnectionStatus.TOKEN_EXPIRED)
         except CircuitBreakerOpen as exc:
-            return ConnectionResult(False, str(exc))
+            return ConnectionResult(ConnectionStatus.CIRCUIT_OPEN, str(exc))
         except Exception as exc:  # noqa: BLE001 — UI button must report any failure, never raise.
-            return ConnectionResult(False, f"Connection failed: {exc}")
-        return ConnectionResult(True, "Connection OK")
+            return ConnectionResult(ConnectionStatus.ERROR, str(exc))
+        return ConnectionResult(ConnectionStatus.OK)
 
     def _fetch(
         self,

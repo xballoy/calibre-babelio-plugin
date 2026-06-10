@@ -45,7 +45,9 @@ class MetadataProtocol(Protocol):
     series: str | None
     series_index: float | None
     tags: list[str]
-    identifiers: Mapping[str, str]
+
+    @property
+    def identifiers(self) -> Mapping[str, str]: ...
 
     def set_identifier(self, typ: str, val: str) -> None: ...
 

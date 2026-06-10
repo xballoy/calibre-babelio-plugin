@@ -6,7 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from calibre_babelio.client import BabelioClient, _full_resolution_url
+from calibre_babelio.client import (
+    BabelioClient,
+    ConnectionResult,
+    ConnectionStatus,
+    _full_resolution_url,
+)
 from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
 
 _COVER_URL = "https://www.babelio.com/couv/CVT_CVT_Autre-Monde-Tome-5--Oz_6607.jpg"
@@ -131,3 +136,47 @@ def test_fetch_image_open_circuit_blocks_request(tmp_path: Path) -> None:
     with pytest.raises(CircuitBreakerOpen):
         client.fetch_image(_COVER_URL)
     assert browser.opened == []
+
+
+def test_connection_ok() -> None:
+    client = _client(FakeBrowser(b"<html></html>", final_url=f"{_COVER_URL}"))
+
+    result = client.test_connection()
+
+    assert result.status is ConnectionStatus.OK
+    assert result.ok
+    assert result.detail == ""
+
+
+def test_connection_blocked_returns_token_expired() -> None:
+    client = _client(FakeBrowser(error=_http_error(403)))
+
+    result = client.test_connection()
+
+    assert result.status is ConnectionStatus.TOKEN_EXPIRED
+    assert not result.ok
+
+
+def test_connection_unexpected_error_returns_error_status() -> None:
+    client = _client(FakeBrowser(error=_http_error(500)))
+
+    result = client.test_connection()
+
+    assert result.status is ConnectionStatus.ERROR
+    assert not result.ok
+    assert result.detail  # raw exception text preserved for display
+
+
+@pytest.mark.parametrize(
+    ("status", "expected_ok"),
+    [
+        (ConnectionStatus.OK, True),
+        (ConnectionStatus.TOKEN_EXPIRED, False),
+        (ConnectionStatus.CIRCUIT_OPEN, False),
+        (ConnectionStatus.ERROR, False),
+    ],
+)
+def test_connection_result_ok_tracks_status(
+    status: ConnectionStatus, expected_ok: bool
+) -> None:
+    assert ConnectionResult(status).ok is expected_ok
