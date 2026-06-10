@@ -198,9 +198,10 @@ class Worker(threading.Thread):
     def _select_tags(self, book: BabelioBook) -> list[str]:
         thresholds = self._ctx.config.tag_relevance
         names: list[str] = []
+        seen: set[str] = set()
         for tag in book.tags:
-            if tag.relevance < thresholds.get(tag.category, 0):
+            if tag.relevance < thresholds.get(tag.category, 0) or tag.name in seen:
                 continue
-            if tag.name not in names:
-                names.append(tag.name)
+            seen.add(tag.name)
+            names.append(tag.name)
         return names

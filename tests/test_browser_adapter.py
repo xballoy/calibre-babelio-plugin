@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from calibre_babelio._browser import CalibreBrowserAdapter
 
 
@@ -11,7 +9,9 @@ class FakeResponse:
 
 
 class FakeRequest:
-    def __init__(self, url: str, data: bytes | None = None, headers: dict[str, str] | None = None):
+    def __init__(
+        self, url: str, data: bytes | None = None, headers: dict[str, str] | None = None
+    ) -> None:
         self.url = url
         self.data = data
         self.headers = headers
@@ -22,7 +22,7 @@ class FakeBrowser:
         self.user_agent: str | None = None
         self.set_headers: list[tuple[str, str]] = []
         self.cookies: list[tuple[str, str, str, str]] = []
-        self.opened: list[tuple[tuple[Any, ...], dict[str, Any]]] = []
+        self.opened: list[tuple[tuple[object, ...], dict[str, object]]] = []
 
     def set_user_agent(self, newval: str) -> None:
         self.user_agent = newval
@@ -33,7 +33,7 @@ class FakeBrowser:
     def set_simple_cookie(self, name: str, value: str, domain: str, path: str = "/") -> None:
         self.cookies.append((name, value, domain, path))
 
-    def open(self, *args: Any, **kwargs: Any) -> FakeResponse:
+    def open(self, *args: object, **kwargs: object) -> FakeResponse:
         self.opened.append((args, kwargs))
         return FakeResponse()
 

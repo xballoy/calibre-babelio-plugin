@@ -103,7 +103,12 @@ class Babelio(Source):  # type: ignore[misc]
         from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient
         from .config import prefs, worker_config_from_prefs
-        from .errors import BabelioBlocked, CircuitBreakerOpen
+        from .errors import (
+            BabelioBlocked,
+            CircuitBreakerOpen,
+            circuit_open_message,
+            cookie_expired_message,
+        )
         from .parser import parse_search_results
         from .query import build_search_query
         from .worker import Worker, WorkerContext
@@ -140,9 +145,9 @@ class Babelio(Source):  # type: ignore[misc]
             try:
                 search = client.search(query)
             except BabelioBlocked:
-                return self._cookie_expired_message()
+                return cookie_expired_message()
             except CircuitBreakerOpen:
-                return self._circuit_open_message()
+                return circuit_open_message()
 
             hits = parse_search_results(search.body)
             if not hits:
@@ -156,7 +161,7 @@ class Babelio(Source):  # type: ignore[misc]
         return self._run_workers(workers, abort)
 
     def _run_workers(self, workers: list[Worker], abort: Event) -> str | None:
-        from .errors import CircuitBreakerOpen
+        from .errors import CircuitBreakerOpen, circuit_open_message, cookie_expired_message
 
         for worker in workers:
             worker.start()
@@ -170,8 +175,8 @@ class Babelio(Source):  # type: ignore[misc]
             return None
         if workers and all(worker.error is not None for worker in workers):
             if any(isinstance(worker.error, CircuitBreakerOpen) for worker in workers):
-                return self._circuit_open_message()
-            return self._cookie_expired_message()
+                return circuit_open_message()
+            return cookie_expired_message()
         return None
 
     def download_cover(
@@ -245,17 +250,6 @@ class Babelio(Source):  # type: ignore[misc]
             return
         if cdata:
             result_queue.put((self, cdata))
-
-    @staticmethod
-    def _cookie_expired_message() -> str:
-        return _(
-            "Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin "
-            "settings (Preferences → Metadata download → Babelio → Configure)."
-        )
-
-    @staticmethod
-    def _circuit_open_message() -> str:
-        return _("Babelio access is temporarily blocked to avoid an IP ban; try again later.")
 
 
 if __name__ == "__main__":

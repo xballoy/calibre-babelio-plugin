@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from calibre_babelio.client import BabelioClient, ConnectionStatus
+from calibre_babelio.client import _DEFAULT_USER_AGENT, BabelioClient, ConnectionStatus
 from calibre_babelio.errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
 from calibre_babelio.parser import parse_book_page, parse_search_results
 from calibre_babelio.query import build_search_query
@@ -29,11 +29,6 @@ _COOKIE = os.environ.get("BABELIO_COOKIE")
 pytestmark = pytest.mark.skipif(
     not _COOKIE,
     reason="set BABELIO_COOKIE (a fresh jstsToken) to run the live Babelio integration tests",
-)
-
-_DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/131.0.0.0 Safari/537.36"
 )
 
 # Known book whose metadata is stable enough to assert on (mirrors the __main__ self-test).

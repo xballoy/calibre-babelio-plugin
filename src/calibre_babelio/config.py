@@ -25,19 +25,14 @@ from qt.core import (
     pyqtSignal,
 )
 
-from .client import ConnectionStatus
+from .client import _DEFAULT_USER_AGENT, ConnectionResult, ConnectionStatus
+from .errors import circuit_open_message, cookie_expired_message
 from .parser import TagCategory
 from .worker import WorkerConfig
 
 if TYPE_CHECKING:
 
     def _(text: str) -> str: ...
-
-
-_DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/131.0.0.0 Safari/537.36"
-)
 
 # String keys persisted in JSON, in the genre/thème/lieu/quand order Babelio uses.
 _TAG_CATEGORY_KEYS = ("genre", "theme", "place", "period")
@@ -93,7 +88,7 @@ class _TestConnectionWorker(QThread):  # type: ignore[misc]
         from calibre import browser
 
         from ._browser import CalibreBrowserAdapter
-        from .client import BabelioClient, ConnectionResult
+        from .client import BabelioClient
 
         try:
             client = BabelioClient(
@@ -311,30 +306,26 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         self._test_worker.finished.connect(self._test_worker.deleteLater)
         self._test_worker.start()
 
-    def _on_test_finished(self, result: object) -> None:
+    def _on_test_finished(self, result: ConnectionResult) -> None:
         QApplication.restoreOverrideCursor()
         self.test_button.setEnabled(True)
 
-        status = result.status  # type: ignore[attr-defined]
-        if status is ConnectionStatus.OK:
+        if result.status is ConnectionStatus.OK:
             ok_text = _("Connection OK")
             self.test_status.setText(f"<span style='color: green;'>✅ {ok_text}</span>")
             QMessageBox.information(self, _("Test connection"), ok_text)
             return
 
-        message = self._connection_error_message(status, result.detail)  # type: ignore[attr-defined]
+        message = self._connection_error_message(result.status, result.detail)
         self.test_status.setText(f"<span style='color: red;'>❌ {message}</span>")
         QMessageBox.warning(self, _("Test connection"), message)
 
     @staticmethod
     def _connection_error_message(status: ConnectionStatus, detail: str) -> str:
         if status is ConnectionStatus.TOKEN_EXPIRED:
-            return _(
-                "Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin "
-                "settings (Preferences → Metadata download → Babelio → Configure)."
-            )
+            return cookie_expired_message()
         if status is ConnectionStatus.CIRCUIT_OPEN:
-            return _("Babelio access is temporarily blocked to avoid an IP ban; try again later.")
+            return circuit_open_message()
         return _("Connection failed: {error}").format(error=detail)
 
     def save_settings(self) -> None:

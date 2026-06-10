@@ -22,6 +22,11 @@ _COOKIE_NAME = "jstsToken"
 _COOKIE_DOMAIN = "www.babelio.com"
 _BODY_ENCODING = "iso-8859-1"
 
+_DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/131.0.0.0 Safari/537.36"
+)
+
 _DEFAULT_MIN_INTERVAL = 1.2
 _DEFAULT_BLOCK_THRESHOLD = 3
 _DEFAULT_COOLDOWN = 23 * 3600.0

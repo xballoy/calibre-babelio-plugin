@@ -202,12 +202,13 @@ def _parse_authors(soup: BeautifulSoup) -> tuple[str, ...]:
     if container is None:
         return ()
     authors: list[str] = []
+    seen: set[str] = set()
     for link in container.select('a[href^="/auteur/"]'):
         name = _collapse(link.get_text(" ", strip=True))
-        if not name or _EDITORIAL_ROLE.search(name):
+        if not name or name in seen or _EDITORIAL_ROLE.search(name):
             continue
-        if name not in authors:
-            authors.append(name)
+        seen.add(name)
+        authors.append(name)
     return tuple(authors)
 
 
@@ -220,12 +221,13 @@ def _parse_publisher(refs: BsTag | None) -> str | None:
     if refs is None:
         return None
     names: list[str] = []
+    seen: set[str] = set()
     for link in refs.select('a[href^="/editeur"]'):
         name = _collapse(link.get_text(" ", strip=True))
-        if not name or name.casefold() == "voir plus":
+        if not name or name in seen or name.casefold() == "voir plus":
             continue
-        if name not in names:
-            names.append(name)
+        seen.add(name)
+        names.append(name)
     return " / ".join(names) if names else None
 
 
