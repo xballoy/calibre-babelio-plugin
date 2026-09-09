@@ -18,10 +18,18 @@ thing that unlocks access.
 
 ### Where to get the token
 
-1. Open https://www.babelio.com/ in your browser and make sure you are not blocked.
+Babelio only sets the `jstsToken` cookie on visits it decides to challenge. Sometimes that means
+a slider puzzle to solve, other times the site just loads normally and no such cookie ever gets
+set. When the challenge does show up:
+
+1. Open https://www.babelio.com/ in your browser and complete the puzzle if one is shown.
 2. Open the developer tools (F12) → **Application** (Chrome/Edge) or **Storage** (Firefox) →
    **Cookies** → `https://www.babelio.com`.
 3. Copy the **value** of the cookie named **`jstsToken`**.
+
+If there's no `jstsToken` row at all, this visit just wasn't challenged, so there's nothing to
+copy yet. That's entirely up to Babelio's own anti-bot checks, not something the plugin or you can
+force. Try again another time.
 
 The cookie is `HttpOnly`, so it is **not** readable from the JavaScript console; you must copy it
 from the Cookies panel. It is also `Secure` (HTTPS only) and host-only to `www.babelio.com`.
@@ -29,9 +37,10 @@ from the Cookies panel. It is also `Secure` (HTTPS only) and host-only to `www.b
 ### Lifetime and expiry
 
 A pasted token is usable for **about three weeks** (≈ 21 days), though Babelio may invalidate it
-sooner after an IP change or abuse. When it expires, identify returns a translated message,
-*"Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin settings"*, and the
-plugin stops calling Babelio. Just copy a fresh token from your browser and paste it again.
+sooner after an IP change or abuse. When it's missing or Babelio rejects it, identify returns a
+translated message telling you which and pointing at *Preferences → Metadata download → Babelio →
+Configure*, and the plugin stops calling Babelio. Just copy a fresh token from your browser and
+paste it again.
 
 ## Requirements
 

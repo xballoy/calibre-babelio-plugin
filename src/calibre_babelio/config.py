@@ -26,7 +26,7 @@ from qt.core import (
 )
 
 from .client import _DEFAULT_USER_AGENT, ConnectionResult, ConnectionStatus
-from .errors import circuit_open_message, cookie_expired_message
+from .errors import circuit_open_message, cookie_expired_message, token_missing_message
 from .parser import TagCategory
 from .worker import WorkerConfig
 
@@ -322,6 +322,8 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
 
     @staticmethod
     def _connection_error_message(status: ConnectionStatus, detail: str) -> str:
+        if status is ConnectionStatus.TOKEN_MISSING:
+            return token_missing_message()
         if status is ConnectionStatus.TOKEN_EXPIRED:
             return cookie_expired_message()
         if status is ConnectionStatus.CIRCUIT_OPEN:

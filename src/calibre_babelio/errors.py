@@ -13,15 +13,28 @@ if TYPE_CHECKING:
 load_translations()
 
 _TOKEN_EXPIRED_MESSAGE = (
-    "Babelio jstsToken is missing or expired: copy a fresh one from your browser "
+    "Babelio rejected the configured jstsToken cookie: copy a fresh one from your browser "
+    "(DevTools → Application → Cookies → www.babelio.com → jstsToken) into plugin settings."
+)
+
+_TOKEN_MISSING_MESSAGE = (
+    "No Babelio jstsToken cookie is configured: copy one from your browser "
     "(DevTools → Application → Cookies → www.babelio.com → jstsToken) into plugin settings."
 )
 
 
 def cookie_expired_message() -> str:
     return _(
-        "Babelio cookie is missing or expired: paste a fresh jstsToken in the plugin "
-        "settings (Preferences → Metadata download → Babelio → Configure)."
+        "Babelio rejected the configured jstsToken cookie (it has likely expired): paste a "
+        "fresh one in the plugin settings (Preferences → Metadata download → Babelio → "
+        "Configure)."
+    )
+
+
+def token_missing_message() -> str:
+    return _(
+        "No Babelio jstsToken cookie is configured: paste one in the plugin settings "
+        "(Preferences → Metadata download → Babelio → Configure) before importing."
     )
 
 
@@ -30,7 +43,11 @@ def circuit_open_message() -> str:
 
 
 class BabelioBlocked(Exception):
-    """Raised on HTTP 403: a missing, expired, or invalid `jstsToken`."""
+    """Raised on HTTP 403: an expired or invalid `jstsToken`."""
+
+
+class BabelioTokenMissing(BabelioBlocked):
+    """Raised when no `jstsToken` is configured; no request is attempted."""
 
 
 class CircuitBreakerOpen(Exception):
@@ -43,3 +60,11 @@ class CircuitBreakerOpen(Exception):
             f"Babelio access is temporarily blocked to avoid an IP ban; "
             f"try again in ~{hours:.1f} h."
         )
+
+
+def message_for_error(error: BaseException) -> str:
+    if isinstance(error, CircuitBreakerOpen):
+        return circuit_open_message()
+    if isinstance(error, BabelioTokenMissing):
+        return token_missing_message()
+    return cookie_expired_message()

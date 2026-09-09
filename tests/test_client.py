@@ -16,7 +16,7 @@ from calibre_babelio.client import (
     _full_resolution_url,
     _SharedRequestState,
 )
-from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
+from calibre_babelio.errors import BabelioBlocked, BabelioTokenMissing, CircuitBreakerOpen
 
 if TYPE_CHECKING:
     import os
@@ -123,6 +123,48 @@ def test_fetch_image_403_raises_blocked() -> None:
         client.fetch_image(_COVER_URL)
 
 
+def test_fetch_image_blank_cookie_raises_token_missing_without_network() -> None:
+    browser = FakeBrowser(b"img")
+    client = BabelioClient(browser, "", "UA/1.0", min_interval=0.0, _shared=_SharedRequestState())
+
+    with pytest.raises(BabelioTokenMissing):
+        client.fetch_image(_COVER_URL)
+
+    assert browser.opened == []
+
+
+def test_fetch_image_whitespace_only_cookie_raises_token_missing() -> None:
+    browser = FakeBrowser(b"img")
+    client = BabelioClient(
+        browser, "   ", "UA/1.0", min_interval=0.0, _shared=_SharedRequestState()
+    )
+
+    with pytest.raises(BabelioTokenMissing):
+        client.fetch_image(_COVER_URL)
+
+    assert browser.opened == []
+
+
+def test_blank_cookie_never_trips_the_circuit_breaker(tmp_path: Path) -> None:
+    lockfile = tmp_path / "circuit.lock"
+    browser = FakeBrowser(b"img")
+    client = BabelioClient(
+        browser,
+        "",
+        "UA/1.0",
+        min_interval=0.0,
+        lockfile_path=lockfile,
+        block_threshold=2,
+        _shared=_SharedRequestState(),
+    )
+
+    for _ in range(5):
+        with pytest.raises(BabelioTokenMissing):
+            client.fetch_image(_COVER_URL)
+
+    assert not lockfile.exists()
+
+
 def test_fetch_image_non_403_http_error_propagates() -> None:
     browser = FakeBrowser(error=_http_error(500))
     client = _client(browser)
@@ -217,6 +259,17 @@ def test_connection_ok() -> None:
     assert result.detail == ""
 
 
+def test_connection_blank_cookie_returns_token_missing() -> None:
+    client = BabelioClient(
+        FakeBrowser(b""), "", "UA/1.0", min_interval=0.0, _shared=_SharedRequestState()
+    )
+
+    result = client.test_connection()
+
+    assert result.status is ConnectionStatus.TOKEN_MISSING
+    assert not result.ok
+
+
 def test_connection_blocked_returns_token_expired() -> None:
     client = _client(FakeBrowser(error=_http_error(403)))
 
@@ -240,6 +293,7 @@ def test_connection_unexpected_error_returns_error_status() -> None:
     ("status", "expected_ok"),
     [
         (ConnectionStatus.OK, True),
+        (ConnectionStatus.TOKEN_MISSING, False),
         (ConnectionStatus.TOKEN_EXPIRED, False),
         (ConnectionStatus.CIRCUIT_OPEN, False),
         (ConnectionStatus.ERROR, False),
