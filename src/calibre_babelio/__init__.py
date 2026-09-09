@@ -103,12 +103,7 @@ class Babelio(Source):  # type: ignore[misc]
         from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient
         from .config import prefs, worker_config_from_prefs
-        from .errors import (
-            BabelioBlocked,
-            CircuitBreakerOpen,
-            circuit_open_message,
-            cookie_expired_message,
-        )
+        from .errors import BabelioBlocked, CircuitBreakerOpen, message_for_error
         from .parser import parse_search_results
         from .query import build_search_query
         from .worker import Worker, WorkerContext
@@ -144,10 +139,8 @@ class Babelio(Source):  # type: ignore[misc]
                 return None
             try:
                 search = client.search(query)
-            except BabelioBlocked:
-                return cookie_expired_message()
-            except CircuitBreakerOpen:
-                return circuit_open_message()
+            except (BabelioBlocked, CircuitBreakerOpen) as exc:
+                return message_for_error(exc)
 
             hits = parse_search_results(search.body)
             if not hits:
@@ -161,7 +154,7 @@ class Babelio(Source):  # type: ignore[misc]
         return self._run_workers(workers, abort)
 
     def _run_workers(self, workers: list[Worker], abort: Event) -> str | None:
-        from .errors import CircuitBreakerOpen, circuit_open_message, cookie_expired_message
+        from .errors import BabelioTokenMissing, CircuitBreakerOpen, message_for_error
 
         for worker in workers:
             worker.start()
@@ -174,9 +167,15 @@ class Babelio(Source):  # type: ignore[misc]
         if any(worker.result is not None for worker in workers):
             return None
         if workers and all(worker.error is not None for worker in workers):
-            if any(isinstance(worker.error, CircuitBreakerOpen) for worker in workers):
-                return circuit_open_message()
-            return cookie_expired_message()
+            for worker in workers:
+                if isinstance(worker.error, CircuitBreakerOpen):
+                    return message_for_error(worker.error)
+            for worker in workers:
+                if isinstance(worker.error, BabelioTokenMissing):
+                    return message_for_error(worker.error)
+            error = workers[0].error
+            assert error is not None
+            return message_for_error(error)
         return None
 
     def download_cover(
@@ -193,7 +192,7 @@ class Babelio(Source):  # type: ignore[misc]
         from ._browser import CalibreBrowserAdapter
         from .client import BabelioClient
         from .config import prefs
-        from .errors import BabelioBlocked, CircuitBreakerOpen
+        from .errors import BabelioBlocked, CircuitBreakerOpen, message_for_error
 
         if not prefs["allow_covers"]:
             log.info("Cover download disabled in Babelio settings")
@@ -221,7 +220,7 @@ class Babelio(Source):  # type: ignore[misc]
         try:
             cdata = client.fetch_image(cached_url, timeout=timeout)
         except (BabelioBlocked, CircuitBreakerOpen) as exc:
-            log.error("Babelio blocked the cover download:", exc)
+            log.error(message_for_error(exc))
             return
         except Exception:
             log.exception("Failed to download Babelio cover from:", cached_url)

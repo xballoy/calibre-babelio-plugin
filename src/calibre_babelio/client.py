@@ -13,7 +13,13 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
-from .errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
+from .errors import (
+    _TOKEN_EXPIRED_MESSAGE,
+    _TOKEN_MISSING_MESSAGE,
+    BabelioBlocked,
+    BabelioTokenMissing,
+    CircuitBreakerOpen,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
@@ -86,6 +92,7 @@ class FetchResult:
 
 class ConnectionStatus(Enum):
     OK = "ok"
+    TOKEN_MISSING = "token_missing"
     TOKEN_EXPIRED = "token_expired"
     CIRCUIT_OPEN = "circuit_open"
     ERROR = "error"
@@ -180,6 +187,8 @@ class BabelioClient:
     def test_connection(self, *, timeout: float = 10.0) -> ConnectionResult:
         try:
             self.search("test", timeout=timeout, record_blocks=False, check_circuit=False)
+        except BabelioTokenMissing:
+            return ConnectionResult(ConnectionStatus.TOKEN_MISSING)
         except BabelioBlocked:
             return ConnectionResult(ConnectionStatus.TOKEN_EXPIRED)
         # Unreachable while the search above passes check_circuit=False; kept defensively.
@@ -199,6 +208,8 @@ class BabelioClient:
         record_blocks: bool = True,
         check_circuit: bool = True,
     ) -> FetchResult:
+        if not self._cookie.strip():
+            raise BabelioTokenMissing(_TOKEN_MISSING_MESSAGE)
         if check_circuit:
             self._check_circuit()
         with self._shared.request_lock:
