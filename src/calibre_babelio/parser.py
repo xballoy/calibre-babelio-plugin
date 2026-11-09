@@ -63,14 +63,20 @@ class BabelioBook:
 
 def parse_search_results(html: bytes) -> SearchPage:
     soup = _soup(html)
-    hits = _hits(soup.select(".rs-section .lv-item"), ".lv-title a", ".lv-author a")
+    items = soup.select("section.rs-section .lv-item")
+    hits = tuple(
+        SearchHit(babelio_id, title, _node_text(item.select_one(".lv-author a")) or None)
+        for item, babelio_id, title in _book_links(items, ".lv-title a")
+    )
     return SearchPage(hits=hits, bibliography=_author_bibliography(soup))
 
 
 def parse_author_bibliography(html: bytes, author: str) -> tuple[SearchHit, ...]:
-    soup = _soup(html)
-    hits = _hits(soup.select(".author-biblio-grid .book-card"), ".book-card-title a", None)
-    return tuple(SearchHit(hit.babelio_id, hit.title, author) for hit in hits)
+    items = _soup(html).select(".author-biblio-grid .book-card")
+    return tuple(
+        SearchHit(babelio_id, title, author)
+        for _, babelio_id, title in _book_links(items, ".book-card-title a")
+    )
 
 
 def parse_book_page(html: bytes) -> BabelioBook | None:
@@ -227,26 +233,27 @@ def _id_from_livres_href(href: str) -> str | None:
     return href.split("/livres/", 1)[1].split("?", 1)[0].rstrip("/")
 
 
-def _hits(
-    items: list[BsTag], title_selector: str, author_selector: str | None
-) -> tuple[SearchHit, ...]:
-    hits: list[SearchHit] = []
+def _book_links(items: list[BsTag], selector: str) -> list[tuple[BsTag, str, str]]:
+    links: list[tuple[BsTag, str, str]] = []
     for item in items:
-        link = item.select_one(title_selector)
+        link = item.select_one(selector)
         babelio_id = _id_from_livres_href(_attr(link, "href") or "") if link is not None else None
-        if link is None or not babelio_id:
-            continue
-        author_node = item.select_one(author_selector) if author_selector else None
-        author = _collapse(author_node.get_text(" ")) if author_node is not None else ""
-        hits.append(SearchHit(babelio_id, _collapse(link.get_text(" ")), author or None))
-    return tuple(hits)
+        if link is not None and babelio_id:
+            links.append((item, babelio_id, _node_text(link)))
+    return links
+
+
+def _node_text(node: BsTag | None) -> str:
+    return _collapse(node.get_text(" ")) if node is not None else ""
 
 
 def _author_bibliography(soup: BeautifulSoup) -> AuthorBibliography | None:
-    card = soup.select_one(".rs-section.rs-author")
-    link = card.select_one('a.rs-more[href*="/bibliographie"]') if card is not None else None
-    heading = card.select_one("h2") if card is not None else None
-    path = _attr(link, "href") if link is not None else None
-    if not path or heading is None:
+    card = soup.select_one("section.rs-section.rs-author")
+    if card is None:
         return None
-    return AuthorBibliography(path=path, author=_collapse(heading.get_text(" ")))
+    link = card.select_one('a.rs-more[href*="/bibliographie"]')
+    path = _attr(link, "href") if link is not None else None
+    author = _node_text(card.select_one("h2"))
+    if not path or not author:
+        return None
+    return AuthorBibliography(path=path, author=author)

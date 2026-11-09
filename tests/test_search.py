@@ -14,7 +14,7 @@ def _load(name: str) -> bytes:
 
 
 class FakeClient:
-    def __init__(self, search_page: str, bibliography_page: str | None = None) -> None:
+    def __init__(self, search_page: str | bytes, bibliography_page: str | None = None) -> None:
         self._search_page = search_page
         self._bibliography_page = bibliography_page
         self.searches: list[str] = []
@@ -22,7 +22,9 @@ class FakeClient:
 
     def search(self, terms: str) -> FetchResult:
         self.searches.append(terms)
-        return FetchResult(_load(self._search_page), "https://www.babelio.com/recherche")
+        page = self._search_page
+        body = page if isinstance(page, bytes) else _load(page)
+        return FetchResult(body, "https://www.babelio.com/recherche")
 
     def get_author_bibliography(self, path: str) -> FetchResult:
         self.bibliographies.append(path)
@@ -58,4 +60,22 @@ def test_empty_search_returns_nothing_without_extra_requests() -> None:
     client = FakeClient("search_no_results.html")
 
     assert search_books(client, "zxqwvbnmlkjhgfdsapoiuyt") == ()
+    assert client.bibliographies == []
+
+
+def test_book_results_win_over_an_author_card() -> None:
+    page = (
+        b'<section class="rs-section rs-author"><h2>Maxime Chattam</h2>'
+        b'<a class="rs-more" href="/auteur/Maxime-Chattam/2038/bibliographie">Bibliographie</a>'
+        b"</section>"
+        b'<section class="rs-section"><div class="lv-item">'
+        b'<p class="lv-title"><a href="/livres/Chattam-Oz/401283">Oz</a></p>'
+        b'<p class="lv-author"><a href="/auteur/Maxime-Chattam/2038">Maxime Chattam</a></p>'
+        b"</div></section>"
+    )
+    client = FakeClient(page)
+
+    assert search_books(client, "Chattam") == (
+        SearchHit("Chattam-Oz/401283", "Oz", "Maxime Chattam"),
+    )
     assert client.bibliographies == []
