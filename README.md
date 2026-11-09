@@ -101,6 +101,15 @@ BABELIO_COOKIE=<fresh token> uv run pytest tests/test_integration.py --no-cov
 off-Calibre, which the network-driven test does not reach on its own. You can optionally set
 `BABELIO_UA` to override the User-Agent.
 
+The HTML fixtures in `tests/fixtures/` are real Babelio pages. When Babelio changes its markup,
+re-download them with a fresh token (all-or-nothing: nothing is written if any page fails):
+
+```sh
+BABELIO_COOKIE=<fresh token> uv run python scripts/refresh_fixtures.py
+uv run python scripts/refresh_fixtures.py --token <fresh token> --out /tmp/fixtures  # diff first
+uv run python scripts/refresh_fixtures.py --only book_chattam.html search_by_isbn.html
+```
+
 The same suite can be run in CI via the **Live integration** workflow (manual `workflow_dispatch`
 only). It reads the `jstsToken` from a `BABELIO_COOKIE` **repository secret** (*Settings → Secrets
 and variables → Actions*), never from a workflow input, so the token is never exposed in the public
