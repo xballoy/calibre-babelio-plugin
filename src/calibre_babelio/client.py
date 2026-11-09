@@ -150,6 +150,9 @@ class BabelioClient:
     def get_book_page(self, babelio_id: str, *, timeout: float = 30.0) -> FetchResult:
         return self._fetch(f"{_BASE_URL}/livres/{babelio_id}", None, {}, timeout)
 
+    def get_author_bibliography(self, path: str, *, timeout: float = 30.0) -> FetchResult:
+        return self._fetch(f"{_BASE_URL}{path}", None, {}, timeout)
+
     def search(
         self,
         terms: str,

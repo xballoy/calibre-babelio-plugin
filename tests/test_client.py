@@ -199,6 +199,16 @@ def test_get_full_summary_posts_to_ajax_endpoint() -> None:
     assert browser.opened == ["https://www.babelio.com/aj_voir_plus_a.php"]
 
 
+def test_get_author_bibliography_fetches_the_path_on_babelio() -> None:
+    browser = FakeBrowser(b"<html>biblio</html>", final_url="https://final")
+    client = _client(browser)
+
+    result = client.get_author_bibliography("/auteur/Maxime-Chattam/2038/bibliographie")
+
+    assert result.body == b"<html>biblio</html>"
+    assert browser.opened == ["https://www.babelio.com/auteur/Maxime-Chattam/2038/bibliographie"]
+
+
 def test_rate_limit_sleeps_when_requests_are_too_close(tmp_path: Path) -> None:
     sleeps: list[float] = []
     clock_values = iter([0.4, 1.0])

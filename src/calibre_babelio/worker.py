@@ -12,7 +12,6 @@ from .errors import BabelioBlocked, CircuitBreakerOpen
 from .parser import (
     BabelioBook,
     SearchHit,
-    TagCategory,
     parse_book_page,
     parse_full_summary,
 )
@@ -76,8 +75,6 @@ class WorkerConfig:
     rating: bool
     series: bool
     tags: bool
-    # Minimum tag relevance to keep, per category (genre / thème / lieu / quand).
-    tag_relevance: Mapping[TagCategory, int]
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,9 +137,7 @@ class Worker(threading.Thread):
         except Exception:
             ctx.log.exception("Failed to parse Babelio book", babelio_id)
 
-    def _build_metadata(  # noqa: C901 - a flat per-field toggle mapping; splitting hurts cohesion.
-        self, book: BabelioBook, babelio_id: str, referer: str
-    ) -> MetadataProtocol:
+    def _build_metadata(self, book: BabelioBook, babelio_id: str, referer: str) -> MetadataProtocol:
         ctx = self._ctx
         config = ctx.config
 
@@ -177,10 +172,8 @@ class Worker(threading.Thread):
             mi.series = book.series
             mi.series_index = book.series_index if book.series_index is not None else 1.0
 
-        if config.tags:
-            tags = self._select_tags(book)
-            if tags:
-                mi.tags = tags
+        if config.tags and book.tags:
+            mi.tags = list(book.tags)
 
         return mi
 
@@ -197,14 +190,3 @@ class Worker(threading.Thread):
             ctx.log.exception("Failed to fetch full Babelio résumé", referer)
             return book.summary
         return full or book.summary
-
-    def _select_tags(self, book: BabelioBook) -> list[str]:
-        thresholds = self._ctx.config.tag_relevance
-        names: list[str] = []
-        seen: set[str] = set()
-        for tag in book.tags:
-            if tag.relevance < thresholds.get(tag.category, 0) or tag.name in seen:
-                continue
-            seen.add(tag.name)
-            names.append(tag.name)
-        return names

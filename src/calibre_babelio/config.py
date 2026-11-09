@@ -27,16 +27,11 @@ from qt.core import (
 
 from .client import _DEFAULT_USER_AGENT, ConnectionResult, ConnectionStatus
 from .errors import circuit_open_message, cookie_expired_message, token_missing_message
-from .parser import TagCategory
 from .worker import WorkerConfig
 
 if TYPE_CHECKING:
 
     def _(text: str) -> str: ...
-
-# String keys persisted in JSON, in the genre/thème/lieu/quand order Babelio uses.
-_TAG_CATEGORY_KEYS = ("genre", "theme", "place", "period")
-_DEFAULT_TAG_RELEVANCE = 12
 
 prefs = JSONConfig("plugins/babelio")
 prefs.defaults["jsts_token"] = ""
@@ -51,15 +46,9 @@ prefs.defaults["series"] = True
 prefs.defaults["tags"] = True
 prefs.defaults["verbosity"] = 5
 prefs.defaults["allow_covers"] = True
-prefs.defaults["tag_relevance"] = dict.fromkeys(_TAG_CATEGORY_KEYS, _DEFAULT_TAG_RELEVANCE)
 
 
 def worker_config_from_prefs() -> WorkerConfig:
-    stored = prefs["tag_relevance"]
-    relevance = {
-        TagCategory(key): int(stored.get(key, _DEFAULT_TAG_RELEVANCE))
-        for key in _TAG_CATEGORY_KEYS
-    }
     return WorkerConfig(
         comments=prefs["comments"],
         pubdate=prefs["pubdate"],
@@ -67,7 +56,6 @@ def worker_config_from_prefs() -> WorkerConfig:
         rating=prefs["rating"],
         series=prefs["series"],
         tags=prefs["tags"],
-        tag_relevance=relevance,
     )
 
 
@@ -227,47 +215,8 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         self.verbosity.setToolTip(_("Higher = more diagnostic logging."))
         form.addRow(_("Verbosity:"), self.verbosity)
 
-        outer.addWidget(self._build_tag_relevance_group(group))
         return group
 
-    def _build_tag_relevance_group(self, parent: QWidget) -> QGroupBox:
-        group = QGroupBox(_("Tag relevance thresholds"), parent)
-        outer = QVBoxLayout(group)
-        intro = QLabel(
-            _(
-                "Babelio scores each tag by how strongly readers associate it with the book: its "
-                "<b>relevance</b>. For each category, only tags scoring <b>at or above</b> your "
-                "threshold are imported; the rest are dropped. <b>Higher = stricter</b> (fewer, "
-                "more popular tags); <b>0 = keep every tag</b>. The default of 12 keeps "
-                "widely-shared tags and filters out one-offs."
-            ),
-            group,
-        )
-        intro.setWordWrap(True)
-        intro.setTextFormat(Qt.TextFormat.RichText)
-        outer.addWidget(intro)
-        form = QFormLayout()
-        outer.addLayout(form)
-
-        tooltip = _(
-            "Minimum Babelio relevance score (0–100) a tag must reach to be imported in this "
-            "category. 0 keeps all tags; higher keeps only the most popular."
-        )
-        labels = {
-            "genre": _("Genre:"),
-            "theme": _("Thème:"),
-            "place": _("Lieu:"),
-            "period": _("Quand:"),
-        }
-        self.tag_relevance: dict[str, QSpinBox] = {}
-        for key in _TAG_CATEGORY_KEYS:
-            spin = QSpinBox(group)
-            spin.setRange(0, 100)
-            spin.setToolTip(tooltip)
-            self.tag_relevance[key] = spin
-            form.addRow(labels[key], spin)
-
-        return group
 
     def _load_from_prefs(self) -> None:
         self.jsts_token.setText(prefs["jsts_token"])
@@ -282,9 +231,6 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         self.tags.setChecked(prefs["tags"])
         self.verbosity.setValue(prefs["verbosity"])
         self.allow_covers.setChecked(prefs["allow_covers"])
-        stored = prefs["tag_relevance"]
-        for key, spin in self.tag_relevance.items():
-            spin.setValue(int(stored.get(key, _DEFAULT_TAG_RELEVANCE)))
 
     def _on_test_connection(self) -> None:
         cookie = self.jsts_token.text().strip()
@@ -353,4 +299,3 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         prefs["tags"] = self.tags.isChecked()
         prefs["verbosity"] = self.verbosity.value()
         prefs["allow_covers"] = self.allow_covers.isChecked()
-        prefs["tag_relevance"] = {key: spin.value() for key, spin in self.tag_relevance.items()}

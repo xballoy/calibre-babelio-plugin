@@ -18,8 +18,9 @@ import pytest
 
 from calibre_babelio.client import _DEFAULT_USER_AGENT, BabelioClient, ConnectionStatus
 from calibre_babelio.errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
-from calibre_babelio.parser import parse_book_page, parse_search_results
+from calibre_babelio.parser import parse_book_page
 from calibre_babelio.query import build_search_query
+from calibre_babelio.search import search_books
 from live_browser import UrllibBrowser
 
 if TYPE_CHECKING:
@@ -79,13 +80,20 @@ def test_identify_by_isbn_search() -> None:
     )
     assert query == "9782070391653"  # a valid ISBN searches by exact EAN
 
-    hits = parse_search_results(client.search(query).body)
+    hits = search_books(client, query)
     assert hits, "expected at least one search hit for the hérisson ISBN"
 
     book = parse_book_page(client.get_book_page(hits[0].babelio_id).body)
     assert book is not None
     assert "hérisson" in book.title.lower()
     assert "Muriel Barbery" in book.authors
+
+
+def test_author_only_search_falls_back_to_the_bibliography() -> None:
+    hits = search_books(_live_client(), "Maxime Chattam")
+
+    assert len(hits) > 5
+    assert all(hit.author == "Maxime Chattam" for hit in hits)
 
 
 def test_garbled_cookie_reports_token_expired() -> None:

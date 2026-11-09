@@ -104,8 +104,8 @@ class Babelio(Source):  # type: ignore[misc]
         from .client import BabelioClient
         from .config import prefs, worker_config_from_prefs
         from .errors import BabelioBlocked, CircuitBreakerOpen, message_for_error
-        from .parser import parse_search_results
         from .query import build_search_query
+        from .search import search_books
         from .worker import Worker, WorkerContext
 
         client = BabelioClient(
@@ -138,11 +138,10 @@ class Babelio(Source):  # type: ignore[misc]
                 log.info("No usable title/author/ISBN to search Babelio")
                 return None
             try:
-                search = client.search(query)
+                hits = search_books(client, query)
             except (BabelioBlocked, CircuitBreakerOpen) as exc:
                 return message_for_error(exc)
 
-            hits = parse_search_results(search.body)
             if not hits:
                 log.info("No Babelio search results for", query)
                 return None

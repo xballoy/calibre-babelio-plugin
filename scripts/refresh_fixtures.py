@@ -16,7 +16,6 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "tests")]
 import conftest  # noqa: E402, F401
 
 from calibre_babelio.client import (  # noqa: E402
-    _BASE_URL,
     _DEFAULT_USER_AGENT,
     BabelioClient,
     FetchResult,
@@ -48,9 +47,6 @@ def _book(babelio_id: str) -> Callable[[BabelioClient, dict[str, FetchResult]], 
     return lambda client, _: client.get_book_page(babelio_id)
 
 
-def _page(path: str) -> Callable[[BabelioClient, dict[str, FetchResult]], FetchResult]:
-    return lambda client, _: client._fetch(f"{_BASE_URL}{path}", None, {}, 30.0)
-
 
 def _full_summary(client: BabelioClient, fetched: dict[str, FetchResult]) -> FetchResult:
     book = fetched.get("book_chattam.html") or client.get_book_page(_CHATTAM_BOOK)
@@ -65,16 +61,14 @@ def _author_bibliography(client: BabelioClient, fetched: dict[str, FetchResult])
     match = _BIBLIOGRAPHY_LINK.search(search.body)
     if match is None:
         raise RuntimeError("no bibliography link on the author search page")
-    return client._fetch(f"{_BASE_URL}{match.group(1).decode('ascii')}", None, {}, 30.0)
+    return client.get_author_bibliography(match.group(1).decode("ascii"))
 
 
 FIXTURE_SPECS: tuple[Fixture, ...] = (
     Fixture("search_by_isbn.html", _search("9782226244338")),
-    Fixture("search_by_isbn_herisson.html", _search("9782070391653")),
     Fixture("search_by_title.html", _search("L'élégance du hérisson")),
     Fixture("search_by_both.html", _search("Barbery élégance hérisson")),
     Fixture("search_by_author.html", _search(_AUTHOR_SEARCH)),
-    Fixture("search_chattam.html", _search("Chattam Autre-Monde Oz")),
     Fixture("search_no_results.html", _search("zxqwvbnmlkjhgfdsapoiuyt")),
     Fixture(
         "author_bibliography_chattam.html",
@@ -97,11 +91,15 @@ FIXTURE_SPECS: tuple[Fixture, ...] = (
         lambda url: "/livres/" in url and url.endswith("/1424592"),
     ),
     Fixture(
+        "book_asterix_multiauthor.html",
+        _book("Goscinny-Asterix-tome-1--Asterix-le-gaulois/17540"),
+        lambda url: "/livres/" in url and url.endswith("/17540"),
+    ),
+    Fixture(
         "book_not_found_redirects_home.html",
         _book("Inexistant-Livre-inexistant/999999999"),
         lambda url: "/livres/" not in url,
     ),
-    Fixture("serie_autre_monde.html", _page("/serie/Autre-Monde/30")),
     Fixture("ajax_resume_voirplus.html", _full_summary),
 )
 
