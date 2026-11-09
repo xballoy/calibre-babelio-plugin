@@ -9,7 +9,7 @@ import pytest
 
 from calibre_babelio.client import FetchResult
 from calibre_babelio.errors import BabelioBlocked, CircuitBreakerOpen
-from calibre_babelio.parser import SearchHit, TagCategory
+from calibre_babelio.parser import SearchHit
 from calibre_babelio.worker import (
     DateConverter,
     MetadataProtocol,
@@ -103,6 +103,10 @@ class FakeLog:
         self.records.append(("exception", args))
 
 
+def _book_page(jsonld: str) -> bytes:
+    return f'<script type="application/ld+json">{jsonld}</script>'.encode()
+
+
 def _config(
     *,
     comments: bool = True,
@@ -111,7 +115,6 @@ def _config(
     rating: bool = True,
     series: bool = True,
     tags: bool = True,
-    tag_relevance: dict[TagCategory, int] | None = None,
 ) -> WorkerConfig:
     return WorkerConfig(
         comments=comments,
@@ -120,9 +123,6 @@ def _config(
         rating=rating,
         series=series,
         tags=tags,
-        tag_relevance=(
-            tag_relevance if tag_relevance is not None else dict.fromkeys(TagCategory, 12)
-        ),
     )
 
 
@@ -176,10 +176,10 @@ def test_full_mapping_from_book_page() -> None:
     assert mi.languages == ["fra"]
     assert mi.series == "Autre-Monde"
     assert mi.series_index == 5.0
-    assert mi.publisher == "Albin Michel / Wiz"
+    assert mi.publisher == "Albin Michel"
     assert mi.pubdate == datetime(2012, 11, 2, tzinfo=UTC)
-    assert mi.rating == pytest.approx(8.42)
-    assert "aventure" in mi.tags
+    assert mi.rating == pytest.approx(8.44)
+    assert mi.tags == ["science-fiction", "littérature française"]
     assert plugin.cached_covers == [
         (_CHATTAM_ID, "https://www.babelio.com/couv/CVT_CVT_Autre-Monde-Tome-5--Oz_6607.jpg")
     ]
@@ -253,12 +253,9 @@ def test_truncated_resume_fetches_full_text() -> None:
 
 
 def test_non_truncated_resume_skips_ajax() -> None:
-    # All saved book fixtures are truncated, so build a minimal complete-résumé page.
-    page = (
-        b'<link rel="canonical" href="https://www.babelio.com/livres/Slug/9">'
-        b'<div class="livre_resume">A short complete summary.</div>'
+    client = FakeClient(
+        _book_page('{"@type": "Book", "name": "T", "description": "A short complete summary."}')
     )
-    client = FakeClient(page)
     ctx, queue, _ = _context(client)
 
     _run("Slug/9", ctx)
@@ -325,14 +322,13 @@ def test_ajax_failure_falls_back_to_truncated_summary() -> None:
     assert worker.error is None
     mi = queue.get_nowait()
     assert isinstance(mi, FakeMetadata)
-    # Falls back to the truncated résumé, which still carries the "Voir plus" marker.
-    assert mi.comments is not None and mi.comments.endswith("Voir plus")
+    assert mi.comments is not None
+    assert mi.comments.startswith("La guerre avec les Cyniks terminée")
     assert "\n" not in mi.comments
 
 
 def test_search_hit_target_with_empty_title_falls_back_to_hit_title() -> None:
-    # A book page with an edition block but no <title> parses to an empty title.
-    client = FakeClient(b'<div class="livre_refs grey_light"></div>', final_url=_BOOK_URL)
+    client = FakeClient(_book_page('{"@type": "Book"}'), final_url=_BOOK_URL)
     ctx, queue, _ = _context(client)
     hit = SearchHit(babelio_id=_CHATTAM_ID, title="Hit Title", author="Maxime Chattam")
 
@@ -342,22 +338,6 @@ def test_search_hit_target_with_empty_title_falls_back_to_hit_title() -> None:
     assert isinstance(mi, FakeMetadata)
     assert mi.title == "Hit Title"
     assert mi.identifiers["babelio_id"] == _CHATTAM_ID
-
-
-def test_tag_threshold_drops_low_relevance_tags() -> None:
-    client = FakeClient(_load("book_chattam.html"))
-    # 'suspense' has relevance 14; raise the genre threshold above it.
-    ctx, queue, _ = _context(
-        client,
-        config=_config(tag_relevance={**dict.fromkeys(TagCategory, 12), TagCategory.GENRE: 15}),
-    )
-
-    _run(_CHATTAM_ID, ctx)
-
-    mi = queue.get_nowait()
-    assert isinstance(mi, FakeMetadata)
-    assert "suspense" not in mi.tags
-    assert "fantastique" in mi.tags  # relevance 27, well above the threshold
 
 
 def test_pubdate_uses_injected_date_converter() -> None:

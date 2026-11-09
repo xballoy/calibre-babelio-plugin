@@ -11,20 +11,19 @@ overrides the User-Agent). Run explicitly with::
 
 from __future__ import annotations
 
-import http.client
 import os
-import urllib.request
 from typing import TYPE_CHECKING
 
 import pytest
 
 from calibre_babelio.client import _DEFAULT_USER_AGENT, BabelioClient, ConnectionStatus
 from calibre_babelio.errors import _TOKEN_EXPIRED_MESSAGE, BabelioBlocked, CircuitBreakerOpen
-from calibre_babelio.parser import parse_book_page, parse_search_results
+from calibre_babelio.parser import parse_book_page
 from calibre_babelio.query import build_search_query
+from calibre_babelio.search import search_books
+from live_browser import UrllibBrowser
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
     from pathlib import Path
 
 _COOKIE = os.environ.get("BABELIO_COOKIE")
@@ -38,51 +37,14 @@ pytestmark = pytest.mark.skipif(
 _CHATTAM_ID = "Chattam-Autre-Monde-tome-5--Oz/401283"
 
 
-class _UrllibBrowser:
-    """Stdlib `BrowserProtocol` adapter standing in for Calibre's `self.browser`."""
-
-    def __init__(self) -> None:
-        self._headers: dict[str, str] = {}
-        self._cookies: dict[str, str] = {}
-        self._final_url = ""
-
-    def set_user_agent(self, newval: str) -> None:
-        self._headers["User-Agent"] = newval
-
-    def set_header(self, header: str, value: str) -> None:
-        self._headers[header] = value
-
-    def set_simple_cookie(self, name: str, value: str, domain: str, path: str = "/") -> None:
-        self._cookies[name] = value
-
-    def open(
-        self,
-        url: str,
-        data: bytes | None = None,
-        timeout: float = 30.0,
-        headers: Mapping[str, str] | None = None,
-    ) -> http.client.HTTPResponse:
-        merged = dict(self._headers)
-        if self._cookies:
-            merged["Cookie"] = "; ".join(f"{name}={value}" for name, value in self._cookies.items())
-        if headers:
-            merged.update(headers)
-        request = urllib.request.Request(url, data=data, headers=merged)
-        response = urllib.request.urlopen(request, timeout=timeout)
-        if not isinstance(response, http.client.HTTPResponse):  # pragma: no cover - https only
-            raise TypeError("expected an HTTP response from Babelio")
-        final = getattr(response, "url", None)
-        self._final_url = final if isinstance(final, str) else url
-        return response
-
-    def geturl(self) -> str:
-        return self._final_url
-
-
 def _client(cookie: str, *, min_interval: float = 1.2, **kwargs: object) -> BabelioClient:
     user_agent = os.environ.get("BABELIO_UA") or _DEFAULT_USER_AGENT
     return BabelioClient(
-        _UrllibBrowser(), cookie, user_agent, min_interval=min_interval, **kwargs  # type: ignore[arg-type]
+        UrllibBrowser(),
+        cookie,
+        user_agent,
+        min_interval=min_interval,
+        **kwargs,  # type: ignore[arg-type]
     )
 
 
@@ -118,13 +80,20 @@ def test_identify_by_isbn_search() -> None:
     )
     assert query == "9782070391653"  # a valid ISBN searches by exact EAN
 
-    hits = parse_search_results(client.search(query).body)
+    hits = search_books(client, query)
     assert hits, "expected at least one search hit for the hérisson ISBN"
 
     book = parse_book_page(client.get_book_page(hits[0].babelio_id).body)
     assert book is not None
     assert "hérisson" in book.title.lower()
     assert "Muriel Barbery" in book.authors
+
+
+def test_author_only_search_falls_back_to_the_bibliography() -> None:
+    hits = search_books(_live_client(), "Maxime Chattam")
+
+    assert len(hits) > 5
+    assert all(hit.author == "Maxime Chattam" for hit in hits)
 
 
 def test_garbled_cookie_reports_token_expired() -> None:

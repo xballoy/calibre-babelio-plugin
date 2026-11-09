@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
-from datetime import date, datetime
-from enum import Enum
+from datetime import date
 from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
@@ -15,42 +15,13 @@ if TYPE_CHECKING:
 
 _ENCODING = "iso-8859-1"
 
-_ISBN13 = re.compile(r"(?<!\d)(\d{13})(?!\d)")
-_DATE = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
-_TOME = re.compile(r"tome\s+(\d+)", re.IGNORECASE)
+_TOME = re.compile(r"tome\s+(\d+(?:[.,]\d+)?)", re.IGNORECASE)
+_SERIES_LABEL = "Série"
 _VOIR_PLUS = re.compile(r"voir_plus_a\(\s*'[^']*'\s*,\s*(\d+)\s*,\s*(\d+)\s*\)")
-_TAG_CATEGORY = re.compile(r"^tc_(\d+)$")
-_TAG_RELEVANCE = re.compile(r"^tag_t(\d+)$")
-# Editorial roles appear as a trailing parenthetical, e.g. "Claude Schopp (Éditeur scientifique)".
-# Anchor to the end so a name with a legitimate mid-string parenthetical is not dropped.
-_EDITORIAL_ROLE = re.compile(r"\([^)]*\)\s*$")
 _WHITESPACE = re.compile(r"\s+")
-_TITLE_SUFFIX = " - Babelio"
 
-_RATING_SOURCE_MAX = 5.0  # Babelio rates out of 5
-_RATING_TARGET_MAX = 10.0  # Calibre expects ratings on a 0–10 scale
-
-
-class TagCategory(Enum):
-    GENRE = "genre"
-    THEME = "theme"
-    PLACE = "place"
-    PERIOD = "period"
-
-
-_TAG_CATEGORY_BY_INDEX = {
-    0: TagCategory.GENRE,
-    1: TagCategory.THEME,
-    2: TagCategory.PLACE,
-    3: TagCategory.PERIOD,
-}
-
-
-@dataclass(frozen=True, slots=True)
-class Tag:
-    name: str
-    category: TagCategory
-    relevance: int
+_RATING_SOURCE_MAX = 5.0
+_RATING_TARGET_MAX = 10.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,6 +29,18 @@ class SearchHit:
     babelio_id: str
     title: str
     author: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class AuthorBibliography:
+    path: str
+    author: str
+
+
+@dataclass(frozen=True, slots=True)
+class SearchPage:
+    hits: tuple[SearchHit, ...]
+    bibliography: AuthorBibliography | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,51 +58,51 @@ class BabelioBook:
     summary: str | None
     summary_full_type: int | None
     summary_full_id: int | None
-    tags: tuple[Tag, ...]
+    tags: tuple[str, ...]
 
 
-def parse_search_results(html: bytes) -> list[SearchHit]:
-    """Parse hits from the `.cr_meta` rows, falling back to the `ul.livres_mozaique` mosaic."""
+def parse_search_results(html: bytes) -> SearchPage:
     soup = _soup(html)
+    items = soup.select("section.rs-section .lv-item")
+    hits = tuple(
+        SearchHit(babelio_id, title, _node_text(item.select_one(".lv-author a")) or None)
+        for item, babelio_id, title in _book_links(items, ".lv-title a")
+    )
+    return SearchPage(hits=hits, bibliography=_author_bibliography(soup))
 
-    metas = soup.select(".cr_meta")
-    if metas:
-        return [hit for meta in metas if (hit := _parse_cr_meta(meta)) is not None]
 
-    return [
-        hit
-        for item in soup.select("ul.livres_mozaique li.item")
-        if (hit := _parse_mosaic_item(item)) is not None
-    ]
+def parse_author_bibliography(html: bytes, author: str) -> tuple[SearchHit, ...]:
+    items = _soup(html).select(".author-biblio-grid .book-card")
+    return tuple(
+        SearchHit(babelio_id, title, author)
+        for _, babelio_id, title in _book_links(items, ".book-card-title a")
+    )
 
 
 def parse_book_page(html: bytes) -> BabelioBook | None:
-    """Parse a book page, or `None` when neither a canonical `/livres/` link nor an
-    edition block is present (an unknown URL redirected to the homepage)."""
     soup = _soup(html)
-    babelio_id = _parse_babelio_id(soup)
-    refs = soup.select_one(".livre_refs.grey_light")
-    if babelio_id is None and refs is None:
+    node = _book_node(soup)
+    if node is None:
         return None
-    refs_text = refs.get_text(" ", strip=True) if refs is not None else ""
-    title = _parse_title(soup)
-    summary_type, summary_id = _parse_summary_full_args(soup)
+    title = _text(node.get("name"))
+    summary_type, summary_id = _summary_full_args(soup)
+    series, series_index = _series(soup, title)
 
     return BabelioBook(
-        babelio_id=babelio_id,
+        babelio_id=_id_from_livres_href(_text(node.get("url"))),
         title=title,
-        authors=_parse_authors(soup),
-        isbn=_parse_isbn(refs_text),
-        publisher=_parse_publisher(refs),
-        pubdate=_parse_pubdate(refs_text),
-        rating=_parse_rating(soup),
-        series=_parse_series(soup),
-        series_index=_parse_series_index(title),
-        cover_url=_parse_cover_url(soup),
-        summary=_parse_summary(soup),
+        authors=_names(node.get("author")),
+        isbn=_text(node.get("isbn")) or None,
+        publisher=next(iter(_names(node.get("publisher"))), None),
+        pubdate=_iso_date(node.get("datePublished")),
+        rating=_rating(node.get("aggregateRating")),
+        series=series,
+        series_index=series_index,
+        cover_url=_text(node.get("image")) or None,
+        summary=_text(node.get("description")) or None,
         summary_full_type=summary_type,
         summary_full_id=summary_id,
-        tags=_parse_tags(soup),
+        tags=_names(node.get("genre")),
     )
 
 
@@ -132,6 +115,105 @@ def parse_full_summary(html: bytes) -> str | None:
     return "\n".join(lines) or None
 
 
+def _book_node(soup: BeautifulSoup) -> dict[str, object] | None:
+    for script in soup.select('script[type="application/ld+json"]'):
+        try:
+            data = json.loads(script.get_text())
+        except ValueError:
+            continue
+        for node in _jsonld_nodes(data):
+            if _is_book(node):
+                return node
+    return None
+
+
+def _jsonld_nodes(data: object) -> list[dict[str, object]]:
+    if isinstance(data, list):
+        return [node for item in data for node in _jsonld_nodes(item)]
+    if not isinstance(data, dict):
+        return []
+    graph = data.get("@graph")
+    if isinstance(graph, list):
+        return _jsonld_nodes(graph)
+    return [data]
+
+
+def _is_book(node: dict[str, object]) -> bool:
+    kind = node.get("@type")
+    return kind == "Book" or (isinstance(kind, list) and "Book" in kind)
+
+
+def _text(value: object) -> str:
+    return _collapse(value) if isinstance(value, str) else ""
+
+
+def _names(value: object) -> tuple[str, ...]:
+    entries = value if isinstance(value, list) else [value]
+    names: list[str] = []
+    for entry in entries:
+        name = _text(entry.get("name")) if isinstance(entry, dict) else _text(entry)
+        if name and name not in names:
+            names.append(name)
+    return tuple(names)
+
+
+def _iso_date(value: object) -> date | None:
+    try:
+        return date.fromisoformat(_text(value))
+    except ValueError:
+        return None
+
+
+def _rating(value: object) -> float | None:
+    if not isinstance(value, dict):
+        return None
+    score = _number(value.get("ratingValue"))
+    if score is None:
+        return None
+    best = _number(value.get("bestRating")) or _RATING_SOURCE_MAX
+    return max(0.0, min(_RATING_TARGET_MAX, score * _RATING_TARGET_MAX / best))
+
+
+def _number(value: object) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float):
+        return float(value)
+    try:
+        return float(_text(value).replace(",", "."))
+    except ValueError:
+        return None
+
+
+def _biblio_cell(soup: BeautifulSoup, label: str) -> BsTag | None:
+    for row in soup.select("table.biblio-table tr"):
+        header = row.find(["th", "td"])
+        cells = row.find_all("td")
+        if header is not None and cells and _collapse(header.get_text(" ")) == label:
+            cell: BsTag = cells[-1]
+            return cell
+    return None
+
+
+def _series(soup: BeautifulSoup, title: str) -> tuple[str | None, float | None]:
+    cell = _biblio_cell(soup, _SERIES_LABEL)
+    link = cell.select_one('a[href^="/serie/"]') if cell is not None else None
+    if cell is None or link is None:
+        return None, None
+    name = _collapse(link.get_text(" "))
+    match = _TOME.search(cell.get_text(" ")) or _TOME.search(title)
+    index = float(match.group(1).replace(",", ".")) if match else None
+    return name or None, index
+
+
+def _summary_full_args(soup: BeautifulSoup) -> tuple[int | None, int | None]:
+    for tag in soup.select(".hero-summary-wrap [onclick]"):
+        match = _VOIR_PLUS.search(_attr(tag, "onclick") or "")
+        if match:
+            return int(match.group(1)), int(match.group(2))
+    return None, None
+
+
 def _soup(html: bytes) -> BeautifulSoup:
     return BeautifulSoup(html, "html.parser", from_encoding=_ENCODING)
 
@@ -142,9 +224,7 @@ def _collapse(text: str) -> str:
 
 def _attr(node: BsTag, name: str) -> str | None:
     value = node.get(name)
-    if isinstance(value, list):
-        return " ".join(value)
-    return value
+    return value if isinstance(value, str) else None
 
 
 def _id_from_livres_href(href: str) -> str | None:
@@ -153,172 +233,27 @@ def _id_from_livres_href(href: str) -> str | None:
     return href.split("/livres/", 1)[1].split("?", 1)[0].rstrip("/")
 
 
-def _parse_cr_meta(meta: BsTag) -> SearchHit | None:
-    link = meta.select_one(".titre1 a") or meta.select_one("a.titre1")
-    if link is None:
+def _book_links(items: list[BsTag], selector: str) -> list[tuple[BsTag, str, str]]:
+    links: list[tuple[BsTag, str, str]] = []
+    for item in items:
+        link = item.select_one(selector)
+        babelio_id = _id_from_livres_href(_attr(link, "href") or "") if link is not None else None
+        if link is not None and babelio_id:
+            links.append((item, babelio_id, _node_text(link)))
+    return links
+
+
+def _node_text(node: BsTag | None) -> str:
+    return _collapse(node.get_text(" ")) if node is not None else ""
+
+
+def _author_bibliography(soup: BeautifulSoup) -> AuthorBibliography | None:
+    card = soup.select_one("section.rs-section.rs-author")
+    if card is None:
         return None
-    href = _attr(link, "href")
-    babelio_id = _id_from_livres_href(href) if href else None
-    if not babelio_id:
+    link = card.select_one('a.rs-more[href*="/bibliographie"]')
+    path = _attr(link, "href") if link is not None else None
+    author = _node_text(card.select_one("h2"))
+    if not path or not author:
         return None
-    author_node = meta.select_one(".libelle")
-    author = _collapse(author_node.get_text(" ", strip=True)) if author_node else None
-    return SearchHit(
-        babelio_id=babelio_id,
-        title=_collapse(link.get_text(" ", strip=True)),
-        author=author or None,
-    )
-
-
-def _parse_mosaic_item(item: BsTag) -> SearchHit | None:
-    link = item.select_one('a[href^="/livres/"]')
-    if link is None:
-        return None
-    href = _attr(link, "href")
-    babelio_id = _id_from_livres_href(href) if href else None
-    if not babelio_id:
-        return None
-    title_node = item.select_one(".titre_compact")
-    title = title_node.get_text(" ", strip=True) if title_node else link.get_text(" ", strip=True)
-    return SearchHit(babelio_id=babelio_id, title=_collapse(title), author=None)
-
-
-def _parse_babelio_id(soup: BeautifulSoup) -> str | None:
-    canonical = soup.select_one('link[rel="canonical"]')
-    if canonical is None:
-        return None
-    href = _attr(canonical, "href")
-    return _id_from_livres_href(href) if href else None
-
-
-def _parse_title(soup: BeautifulSoup) -> str:
-    node = soup.select_one("head > title") or soup.select_one("title")
-    raw = _collapse(node.get_text(" ", strip=True)) if node is not None else ""
-    if raw.endswith(_TITLE_SUFFIX):
-        # Form: "<title> - <author> - Babelio"; drop the trailing author and site suffix.
-        return raw.rsplit(" - ", 2)[0]
-    return raw
-
-
-def _parse_authors(soup: BeautifulSoup) -> tuple[str, ...]:
-    container = soup.select_one(".livre_con")
-    if container is None:
-        return ()
-    authors: list[str] = []
-    seen: set[str] = set()
-    for link in container.select('a[href^="/auteur/"]'):
-        name = _collapse(link.get_text(" ", strip=True))
-        if not name or name in seen or _EDITORIAL_ROLE.search(name):
-            continue
-        seen.add(name)
-        authors.append(name)
-    return tuple(authors)
-
-
-def _parse_isbn(refs_text: str) -> str | None:
-    match = _ISBN13.search(refs_text)
-    return match.group(1) if match else None
-
-
-def _parse_publisher(refs: BsTag | None) -> str | None:
-    if refs is None:
-        return None
-    names: list[str] = []
-    seen: set[str] = set()
-    for link in refs.select('a[href^="/editeur"]'):
-        name = _collapse(link.get_text(" ", strip=True))
-        if not name or name in seen or name.casefold() == "voir plus":
-            continue
-        seen.add(name)
-        names.append(name)
-    return " / ".join(names) if names else None
-
-
-def _parse_pubdate(refs_text: str) -> date | None:
-    match = _DATE.search(refs_text)
-    if match is None:
-        return None
-    try:
-        parsed = datetime.strptime(match.group(0), "%d/%m/%Y").date()
-    except ValueError:
-        return None
-    return parsed if parsed.year > 0 else None
-
-
-def _parse_rating(soup: BeautifulSoup) -> float | None:
-    # Pages carry one aggregate ratingValue plus a per-review ratingValue meta node for every
-    # displayed review; scope to the aggregateRating container so review scores can't be mistaken
-    # for the book's rating regardless of document order.
-    for node in soup.select('[itemprop="aggregateRating"] [itemprop="ratingValue"]'):
-        text = node.get_text(strip=True)
-        if not text:
-            continue
-        try:
-            value = float(text.replace(",", ".")) * (_RATING_TARGET_MAX / _RATING_SOURCE_MAX)
-        except ValueError:
-            continue
-        return max(0.0, min(_RATING_TARGET_MAX, value))
-    return None
-
-
-def _parse_series(soup: BeautifulSoup) -> str | None:
-    link = soup.select_one('a[href^="/serie/"]')
-    if link is None:
-        return None
-    name = _collapse(link.get_text(" ", strip=True))
-    return name or None
-
-
-def _parse_series_index(title: str) -> float | None:
-    match = _TOME.search(title)
-    return float(match.group(1)) if match else None
-
-
-def _parse_cover_url(soup: BeautifulSoup) -> str | None:
-    link = soup.select_one('link[rel="image_src"]')
-    if link is None:
-        return None
-    return _attr(link, "href")
-
-
-def _parse_summary(soup: BeautifulSoup) -> str | None:
-    node = soup.select_one(".livre_resume")
-    if node is None:
-        return None
-    text = _collapse(node.get_text(" ", strip=True))
-    return text or None
-
-
-def _parse_summary_full_args(soup: BeautifulSoup) -> tuple[int | None, int | None]:
-    node = soup.select_one(".livre_resume")
-    if node is None:
-        return None, None
-    for tag in [node, *node.select("[onclick]")]:
-        onclick = _attr(tag, "onclick")
-        if not onclick:
-            continue
-        match = _VOIR_PLUS.search(onclick)
-        if match:
-            return int(match.group(1)), int(match.group(2))
-    return None, None
-
-
-def _parse_tags(soup: BeautifulSoup) -> tuple[Tag, ...]:
-    tags: list[Tag] = []
-    for link in soup.select(".tags a"):
-        category: TagCategory | None = None
-        relevance = 0
-        for cls in link.get_attribute_list("class"):
-            category_match = _TAG_CATEGORY.match(cls)
-            if category_match is not None:
-                category = _TAG_CATEGORY_BY_INDEX.get(int(category_match.group(1)))
-                continue
-            relevance_match = _TAG_RELEVANCE.match(cls)
-            if relevance_match is not None:
-                relevance = int(relevance_match.group(1))
-        if category is None:
-            continue
-        name = _collapse(link.get_text(" ", strip=True))
-        if name:
-            tags.append(Tag(name=name, category=category, relevance=relevance))
-    return tuple(tags)
+    return AuthorBibliography(path=path, author=author)
