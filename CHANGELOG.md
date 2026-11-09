@@ -1,5 +1,17 @@
 # calibre-babelio-plugin
 
+## 0.2.0
+
+### Minor Changes
+
+- [#56](https://github.com/xballoy/calibre-babelio-plugin/pull/56) [`32f11f3`](https://github.com/xballoy/calibre-babelio-plugin/commit/32f11f341a46e262a0aa0a8d8078122d7e97893b) Thanks [@xballoy](https://github.com/xballoy)! - Restore search and metadata import after Babelio's site redesign ([#55](https://github.com/xballoy/calibre-babelio-plugin/issues/55)), which left every search empty even though "Test connection" succeeded.
+  
+  - Book details now come from the page's structured data (schema.org JSON-LD), which is less likely to break on the next restyle. Series still comes from the page's details table.
+  - Searching for an author's name alone now follows that author's bibliography and returns their 20 most-read books.
+  - **Tags** are now the book's genres as Babelio lists them (usually one or two, e.g. "science-fiction"). Babelio no longer publishes tag categories or relevance scores, so the "Tag relevance thresholds" setting has been removed.
+  - **Publisher** is now the publisher alone ("Albin Michel") instead of publisher and imprint ("Albin Michel / Wiz").
+  - Two error messages about a missing or rejected cookie are now translated into French.
+
 ## 0.1.1
 
 ### Patch Changes
