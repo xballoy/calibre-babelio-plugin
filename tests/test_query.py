@@ -28,11 +28,11 @@ def test_full_author_name_keeps_first_name() -> None:
 @pytest.mark.parametrize(
     ("isbn", "expected"),
     [
-        ("9782226244338", "9782226244338"),     # valid ISBN-13 passed through unchanged
-        ("2226244336", "9782226244338"),         # valid ISBN-10 → 978-prefixed EAN-13
-        ("123456789X", "9781234567897"),         # ISBN-10 with "X" check digit
+        ("9782226244338", "9782226244338"),  # valid ISBN-13 passed through unchanged
+        ("2226244336", "9782226244338"),  # valid ISBN-10 → 978-prefixed EAN-13
+        ("123456789X", "9781234567897"),  # ISBN-10 with "X" check digit
         ("978-2-226-24433-8", "9782226244338"),  # hyphen separators stripped
-        ("1-234-56789-x", "9781234567897"),      # separators + lowercase "x"
+        ("1-234-56789-x", "9781234567897"),  # separators + lowercase "x"
     ],
 )
 def test_valid_isbn_is_normalized_to_ean13(isbn: str, expected: str) -> None:

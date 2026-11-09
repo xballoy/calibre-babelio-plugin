@@ -66,9 +66,7 @@ class Babelio(Source):  # type: ignore[misc]
     def save_settings(self, config_widget: ConfigWidget) -> None:
         config_widget.save_settings()
 
-    def get_book_url(
-        self, identifiers: Mapping[str, str]
-    ) -> tuple[str, str, str] | None:
+    def get_book_url(self, identifiers: Mapping[str, str]) -> tuple[str, str, str] | None:
         babelio_id = identifiers.get("babelio_id")
         if babelio_id:
             return ("babelio_id", babelio_id, f"{_BASE_URL}/livres/{babelio_id}")
@@ -131,9 +129,7 @@ class Babelio(Source):  # type: ignore[misc]
         if babelio_id:
             workers = [Worker(babelio_id, 0, ctx)]
         else:
-            query = build_search_query(
-                title=title, authors=authors, isbn=identifiers.get("isbn")
-            )
+            query = build_search_query(title=title, authors=authors, isbn=identifiers.get("isbn"))
             if not query:
                 log.info("No usable title/author/ISBN to search Babelio")
                 return None
@@ -200,8 +196,12 @@ class Babelio(Source):  # type: ignore[misc]
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             cached_url = self._cover_url_via_identify(
-                log, abort, title=title, authors=authors,
-                identifiers=identifiers, timeout=timeout,
+                log,
+                abort,
+                title=title,
+                authors=authors,
+                identifiers=identifiers,
+                timeout=timeout,
             )
         if abort.is_set():
             return
@@ -242,8 +242,13 @@ class Babelio(Source):  # type: ignore[misc]
         log.info("No cached Babelio cover; running identify first")
         rq: Queue[MetadataProtocol] = Queue()
         self.identify(
-            log, rq, abort, title=title, authors=authors,
-            identifiers=identifiers, timeout=timeout,
+            log,
+            rq,
+            abort,
+            title=title,
+            authors=authors,
+            identifiers=identifiers,
+            timeout=timeout,
         )
         if abort.is_set():
             return None
@@ -254,9 +259,7 @@ class Babelio(Source):  # type: ignore[misc]
             except Empty:
                 break
         results.sort(
-            key=self.identify_results_keygen(
-                title=title, authors=authors, identifiers=identifiers
-            )
+            key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers)
         )
         for mi in results:
             cached_url = self.get_cached_cover_url(mi.identifiers)

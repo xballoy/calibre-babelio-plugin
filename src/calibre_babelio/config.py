@@ -65,9 +65,7 @@ class _TestConnectionWorker(QThread):  # type: ignore[misc]
 
     result_ready = pyqtSignal(object)
 
-    def __init__(
-        self, cookie: str, user_agent: str, min_interval: float, parent: QWidget
-    ) -> None:
+    def __init__(self, cookie: str, user_agent: str, min_interval: float, parent: QWidget) -> None:
         super().__init__(parent)
         self._cookie = cookie
         self._user_agent = user_agent
@@ -141,16 +139,20 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         self.jsts_token = QLineEdit(group)
         self.jsts_token.setPlaceholderText(_("Paste the jstsToken value here"))
         self.jsts_token.setToolTip(
-            _("The Babelio session cookie. Expires after about 3 weeks; paste a fresh one when "
-              "imports start failing.")
+            _(
+                "The Babelio session cookie. Expires after about 3 weeks; paste a fresh one when "
+                "imports start failing."
+            )
         )
         form.addRow(_("Babelio cookie (jstsToken):"), self.jsts_token)
 
         self.user_agent = QLineEdit(group)
         self.user_agent.setPlaceholderText(_DEFAULT_USER_AGENT)
         self.user_agent.setToolTip(
-            _("Sent with every request; leave as-is unless requests are being blocked. Use the "
-              "same browser you copied the cookie from for best results.")
+            _(
+                "Sent with every request; leave as-is unless requests are being blocked. Use the "
+                "same browser you copied the cookie from for best results."
+            )
         )
         form.addRow(_("Browser User-Agent (optional):"), self.user_agent)
 
@@ -159,8 +161,10 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         self.min_interval.setSingleStep(0.1)
         self.min_interval.setSuffix(" s")
         self.min_interval.setToolTip(
-            _("Minimum pause between requests to Babelio. Higher is slower but safer against "
-              "rate-limiting.")
+            _(
+                "Minimum pause between requests to Babelio. Higher is slower but safer against "
+                "rate-limiting."
+            )
         )
         form.addRow(_("Minimum delay between requests:"), self.min_interval)
 
@@ -236,9 +240,7 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         cookie = self.jsts_token.text().strip()
         user_agent = self.user_agent.text().strip() or _DEFAULT_USER_AGENT
         if not cookie:
-            QMessageBox.warning(
-                self, _("Test connection"), _("Enter a jstsToken cookie first.")
-            )
+            QMessageBox.warning(self, _("Test connection"), _("Enter a jstsToken cookie first."))
             return
 
         self.test_button.setEnabled(False)
@@ -283,8 +285,10 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
             QMessageBox.warning(
                 self,
                 _("Babelio settings"),
-                _("The Babelio cookie and User-Agent are both required for imports to work. "
-                  "Saving anyway, but identify will fail until they are filled in."),
+                _(
+                    "The Babelio cookie and User-Agent are both required for imports to work. "
+                    "Saving anyway, but identify will fail until they are filled in."
+                ),
             )
 
         prefs["jsts_token"] = cookie
