@@ -47,7 +47,6 @@ def _book(babelio_id: str) -> Callable[[BabelioClient, dict[str, FetchResult]], 
     return lambda client, _: client.get_book_page(babelio_id)
 
 
-
 def _full_summary(client: BabelioClient, fetched: dict[str, FetchResult]) -> FetchResult:
     book = fetched.get("book_chattam.html") or client.get_book_page(_CHATTAM_BOOK)
     match = _VOIR_PLUS.search(book.body)

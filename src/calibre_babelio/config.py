@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
     def _(text: str) -> str: ...
 
+
 prefs = JSONConfig("plugins/babelio")
 prefs.defaults["jsts_token"] = ""
 prefs.defaults["user_agent"] = _DEFAULT_USER_AGENT
@@ -216,7 +217,6 @@ class ConfigWidget(QWidget):  # type: ignore[misc]
         form.addRow(_("Verbosity:"), self.verbosity)
 
         return group
-
 
     def _load_from_prefs(self) -> None:
         self.jsts_token.setText(prefs["jsts_token"])
