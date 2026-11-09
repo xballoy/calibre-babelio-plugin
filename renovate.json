@@ -1,36 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>xballoy/renovate-config"],
-  "constraints": {
-    "ghActionsLock": "v0.4.1"
-  },
   "packageRules": [
     {
       "description": "Python tracks the interpreter bundled with Calibre, so Renovate must not bump .python-version or requires-python.",
       "matchDepNames": ["python"],
       "enabled": false
-    },
-    {
-      "groupName": "gh-actions-lock",
-      "matchDepNames": ["github/gh-actions-lock"]
-    }
-  ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "gh-actions-lock extension installed by CI",
-      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
-      "matchStrings": ["gh extension install github/gh-actions-lock --pin (?<currentValue>v\\S+)"],
-      "depNameTemplate": "github/gh-actions-lock",
-      "datasourceTemplate": "github-releases"
-    },
-    {
-      "customType": "regex",
-      "description": "gh-actions-lock extension Renovate uses to regenerate actions.lock",
-      "managerFilePatterns": ["/^renovate\\.json$/"],
-      "matchStrings": ["\"ghActionsLock\": \"(?<currentValue>v[^\"]+)\""],
-      "depNameTemplate": "github/gh-actions-lock",
-      "datasourceTemplate": "github-releases"
     }
   ]
 }
