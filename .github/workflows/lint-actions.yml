@@ -24,6 +24,9 @@ jobs:
           filters: |
             github:
               - '.github/**'
+              - '.nvmrc'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
 
   lint:
     name: Lint
