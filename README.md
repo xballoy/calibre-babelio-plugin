@@ -86,6 +86,7 @@ This repository is a development/CI project; the runtime plugin uses only Calibr
 ```sh
 uv sync                              # set up the dev environment
 uv run ruff check                    # lint
+uv run ruff format                   # format (CI runs `ruff format --check`)
 uv run mypy                          # type-check
 uv run pytest                        # unit tests (no network, no Calibre)
 uv run python scripts/build.py       # build dist/babelio.zip

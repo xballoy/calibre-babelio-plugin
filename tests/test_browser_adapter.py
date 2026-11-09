@@ -53,7 +53,7 @@ def test_open_builds_request_with_headers_and_passes_timeout() -> None:
     response = adapter.open("https://x", b"data", 10.0, headers=headers)
 
     assert response.read() == b"body"
-    (args, kwargs), = browser.opened
+    ((args, kwargs),) = browser.opened
     request = args[0]
     assert isinstance(request, FakeRequest)
     assert request.url == "https://x"
@@ -67,7 +67,7 @@ def test_open_without_headers_sends_empty_dict() -> None:
 
     adapter.open("https://x", None, 5.0)
 
-    (args, _), = browser.opened
+    ((args, _),) = browser.opened
     request = args[0]
     assert isinstance(request, FakeRequest)
     assert request.headers == {}
@@ -78,7 +78,7 @@ def test_open_omits_timeout_when_none() -> None:
 
     adapter.open("https://x")
 
-    (_, kwargs), = browser.opened
+    ((_, kwargs),) = browser.opened
     assert kwargs == {}
 
 

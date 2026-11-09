@@ -82,10 +82,14 @@ def _http_error(code: int) -> urllib.error.HTTPError:
 @pytest.mark.parametrize(
     ("url", "expected"),
     [
-        ("https://m.media-amazon.com/I/51abc._SX318_BO1,204,203,200_.jpg",
-         "https://m.media-amazon.com/I/51abc.jpg"),
-        ("https://m.media-amazon.com/I/51abc._SY475_.jpg",
-         "https://m.media-amazon.com/I/51abc.jpg"),
+        (
+            "https://m.media-amazon.com/I/51abc._SX318_BO1,204,203,200_.jpg",
+            "https://m.media-amazon.com/I/51abc.jpg",
+        ),
+        (
+            "https://m.media-amazon.com/I/51abc._SY475_.jpg",
+            "https://m.media-amazon.com/I/51abc.jpg",
+        ),
         (_COVER_URL, _COVER_URL),
         ("https://www.babelio.com/couv/plain.jpg", "https://www.babelio.com/couv/plain.jpg"),
     ],
@@ -309,9 +313,7 @@ def test_connection_unexpected_error_returns_error_status() -> None:
         (ConnectionStatus.ERROR, False),
     ],
 )
-def test_connection_result_ok_tracks_status(
-    status: ConnectionStatus, expected_ok: bool
-) -> None:
+def test_connection_result_ok_tracks_status(status: ConnectionStatus, expected_ok: bool) -> None:
     assert ConnectionResult(status).ok is expected_ok
 
 
