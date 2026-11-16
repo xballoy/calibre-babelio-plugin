@@ -7,153 +7,162 @@ importers:
     configDependencies: {}
     packageManagerDependencies:
       pnpm:
-        specifier: 12.18.0
-        version: 12.18.0
+        specifier: 12.20.0
+        version: 12.20.0
 
 packages:
 
-  '@pnpm/exe.android-arm64@12.18.0':
-    resolution: {integrity: sha512-fOF6IwgvnUKEmVedGqiAsNPfN2Ry8GvaqzSQOiF3RJFbpBfPKO/6YT54s1GjToyYinRxw9preHHPe4y2N3SzhA==}
+  '@pnpm/exe.android-arm64@12.20.0':
+    resolution: {integrity: sha512-cRn0gBik+J8jjtio12bMRSRGsO/xBvy87rtldEY53rU+G1YY+MJb5tykWNfQJM9ZMTgpXFecYOd3dokT081N0w==}
     cpu: [arm64]
     os: [android]
 
-  '@pnpm/exe.android-x64@12.18.0':
-    resolution: {integrity: sha512-6OiolnaCsB3/GcJ9XNrenbUH3zFHRJ+5QynrMUUEyThbgnnCzWxa199hpQlOmxN4rAXuYQ0IYgWFNUZxyzg31Q==}
+  '@pnpm/exe.android-x64@12.20.0':
+    resolution: {integrity: sha512-GRLjYtnDzwThGIqEAM5IwtbB95R9GopWXZ+136h1M7EUGTLkY5rD9veL7Xpg82PjEsFerdYK1cGzRGUBaXRi4g==}
     cpu: [x64]
     os: [android]
 
-  '@pnpm/exe.darwin-arm64@12.18.0':
-    resolution: {integrity: sha512-zkq+4YzVIX39ETYLyC3W7LY7MpHEU/J3nRhHl4i2yPld2Cf2+rEKRh3ejJ4AmaQ77HHJLCktY4Z3jq0fpcxFXg==}
+  '@pnpm/exe.darwin-arm64@12.20.0':
+    resolution: {integrity: sha512-W1/HpqljOibAKfiZWGugHBrsYSVIw7VOOle/zkRIMK49S4PUdJw0Fnpv0Xummo5RE59TLFWvEHYzsfOCd8yfBg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@pnpm/exe.darwin-x64@12.18.0':
-    resolution: {integrity: sha512-qMsL9qx92unOTa6hgkfiTJv8ceZaTx0IQg7InhYDVX2ZrTECujaVEEVypnJK5m3eGUsP1KD7Y4qIgleCwfRsYw==}
+  '@pnpm/exe.darwin-x64@12.20.0':
+    resolution: {integrity: sha512-OU+Mfuk+pJQwnWSveYDbBRHPfOIILk24cn/Mrzg6rvf6CSAXnQEiUqwJYfokB3wDCw0s8N+q/AszVusc9CihIQ==}
     cpu: [x64]
     os: [darwin]
 
-  '@pnpm/exe.freebsd-x64@12.18.0':
-    resolution: {integrity: sha512-/9vy/4ms52cU4MjZ5NhHd6N2d9L9W0kARf5/ff2tweAHu0VeUzs/0qp/7ZHFuddm2Wa/m0AKQoPum9AVUCqKsw==}
+  '@pnpm/exe.freebsd-x64@12.20.0':
+    resolution: {integrity: sha512-GMizEmKm/90zRw48YpYcydkc95IM9+BwvfG7RYYnby70JKxklCIAayG/IyykpbBrQfl2wpxZSVok8Xw+tu+SDA==}
     cpu: [x64]
     os: [freebsd]
 
-  '@pnpm/exe.linux-arm64-musl@12.18.0':
-    resolution: {integrity: sha512-Vp+TIMPPyackVCXkOdEKH/RmAn/r07EcIyrgZYQK7VrkksqZOie0GnWIx+85mPqeFEYCRtXIZAFJ9L4ceTndDg==}
+  '@pnpm/exe.linux-arm64-musl@12.20.0':
+    resolution: {integrity: sha512-sNhQjnRnpoFSQFiQ8N9ktQuLF7t9e8IB4DB3YAK9CvY+mw6P63IAEeBJPKj+pox0nN8UdlTFHAkLWtuHN/q+yw==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/exe.linux-arm64@12.18.0':
-    resolution: {integrity: sha512-2dpyVBCHT+FfpuQh9i+7MXAqNWYLCvD5vYr5p6Eimxoga8USLnjbUgyj72AOrO0hjc5ri3TEFP3jiyBHjkSZpQ==}
+  '@pnpm/exe.linux-arm64@12.20.0':
+    resolution: {integrity: sha512-g8rFjUHaNKEkuQSqMCu+sA5PldhfMdQDc088H1H/SEV01vlCsJXXoGK4vLKSefEmgzVmgsG+9ozqeMmDDBE3Xw==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-ppc64@12.18.0':
-    resolution: {integrity: sha512-BBOOOfNJ2QwIIya3eKqOjiN4WNTszfRz7HCvw9XggcT7+ftMjNP8XJ/GfW+ltCBeUFR9d8WBVsr2m/NLjX2CZQ==}
+  '@pnpm/exe.linux-ppc64@12.20.0':
+    resolution: {integrity: sha512-oUTewHLppAqn5CvyPqKkgFWXpZj2Z0QjViilgU8DaYoStRHFojRJK26z7xklyEy9uTLnrkJHA5/hp6KUKIHllw==}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-riscv64@12.18.0':
-    resolution: {integrity: sha512-7kMN77xSOYJX8GPSH5RbNAc5oM61LMmcSUukDDUwllnZPXm8GRPskCNsTWy8SCw01Kr1FB+5SwGNMiTdiziLNQ==}
+  '@pnpm/exe.linux-riscv64@12.20.0':
+    resolution: {integrity: sha512-WrihJXJQQaFWz0IFSaWNQht1c+8c7QVyReHGdwL/In1/ql5cizUMxzXOcoy6GyPs+h1UvvNUTaflMLA0cE1oLg==}
     cpu: [riscv64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-s390x@12.18.0':
-    resolution: {integrity: sha512-htuSCpEcmDzhKoJqXbPkvfr176dBHU0QIF5mWcRiqxRXAB/1JoYiMYotfjWpk+ztgpB9qlx4XnWlLFAf7gzc6g==}
+  '@pnpm/exe.linux-s390x@12.20.0':
+    resolution: {integrity: sha512-58HYnkciIaxScbGXASyJiYaKAfOb2MrQ5Ed+OKG7bxPhfe/fV7NZTNKdgxHoxKgO3jrso9mZaLnKHvbb7lGWCw==}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-x64-musl@12.18.0':
-    resolution: {integrity: sha512-Uj+vzfIQ62kDP10x36yHZIXVs5ohdNtiPYwn5FhCLlNScHPo0OAI+ShGDtLofiBXKE7umu71Jmjm7N8a8zVcDw==}
+  '@pnpm/exe.linux-x64-musl@12.20.0':
+    resolution: {integrity: sha512-DHS61C8f5Yjt4X3R4HnfTtihVPCC3vpCgE3zLIfUAyy1J5Gh4sgZSMGII6V595X7W29mH4kUjKrCiR0A6atzTg==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/exe.linux-x64@12.18.0':
-    resolution: {integrity: sha512-OJ+X2wcraldCwj75pCIerWARQSRpdfj0eBTs/2ODyhfeW46ylOnjTIE/GKra6Mn6E72/gBmXS8igrUioa+F9fQ==}
+  '@pnpm/exe.linux-x64@12.20.0':
+    resolution: {integrity: sha512-FQlCX0bSn8CBQQodfWYIv9Nq98/Zpxaoj5onCzHuSdfaO7bGXUDZAtscaaEuJnxkIQOle7mVOLssoEy4Gp9shA==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.win32-arm64@12.18.0':
-    resolution: {integrity: sha512-wEY6jiACGcbhhi5yD59doHqNTndS7AaujaPmtWAu1DKkHru2hy5fJ9yUGecW72Ypaw2/I3BEprfMOopap2NQtw==}
+  '@pnpm/exe.netbsd-x64@12.20.0':
+    resolution: {integrity: sha512-i9ZzFiiMovsgHIuQ8/i384O1fsWJ87GwzLeV+hFI1uDpFO88kPODtijMbi8UBUNhlpP4X/T9QDiy7/mdI4mHgA==}
+    cpu: [x64]
+    os: [netbsd]
+
+  '@pnpm/exe.win32-arm64@12.20.0':
+    resolution: {integrity: sha512-ghB0EKw7PHwTwB72c4nfPJmIPSbTJr/VpG2FBBckgMBLMVSj3xK9n12euTTSfAL6cABdBrtCwsXjjYs52BJexw==}
     cpu: [arm64]
     os: [win32]
 
-  '@pnpm/exe.win32-x64@12.18.0':
-    resolution: {integrity: sha512-5FJkghO7RLRkQpWxeVEygW9XsmnNuxzPfXbgwFWCHsFyFhpDn/vOdL88ToQEM0Kt5igdW5s6U0/IDH8Dvkt3pg==}
+  '@pnpm/exe.win32-x64@12.20.0':
+    resolution: {integrity: sha512-VJxSNS89UWgkDLdI5K2oW009V63mtJn1LB5+G5a3jXG9IYc79U9lEvDEmFU4/LNGhfWwkvx7b40UtIqNewwp4A==}
     cpu: [x64]
     os: [win32]
 
-  pnpm@12.18.0:
-    resolution: {integrity: sha512-nXiC1dyCFH7PxOBiqjSDTgrQKWcQoYN6ERWuASEn02txCeMhrBWYod0KZVl2gbHpmRfhLtDXSerpEYeUM2O+sw==}
+  pnpm@12.20.0:
+    resolution: {integrity: sha512-bMx0mXzO9OZ5mXiOGNv7+lg+KoSWaGaNtHB7aoMGZi9HFW5lAjKphb0+wkz5NkwaoVTTflHteqxiwc0eOvyAww==}
     engines: {node: '>=18'}
     hasBin: true
 
 snapshots:
 
-  '@pnpm/exe.android-arm64@12.18.0':
+  '@pnpm/exe.android-arm64@12.20.0':
     optional: true
 
-  '@pnpm/exe.android-x64@12.18.0':
+  '@pnpm/exe.android-x64@12.20.0':
     optional: true
 
-  '@pnpm/exe.darwin-arm64@12.18.0':
+  '@pnpm/exe.darwin-arm64@12.20.0':
     optional: true
 
-  '@pnpm/exe.darwin-x64@12.18.0':
+  '@pnpm/exe.darwin-x64@12.20.0':
     optional: true
 
-  '@pnpm/exe.freebsd-x64@12.18.0':
+  '@pnpm/exe.freebsd-x64@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-arm64-musl@12.18.0':
+  '@pnpm/exe.linux-arm64-musl@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-arm64@12.18.0':
+  '@pnpm/exe.linux-arm64@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-ppc64@12.18.0':
+  '@pnpm/exe.linux-ppc64@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-riscv64@12.18.0':
+  '@pnpm/exe.linux-riscv64@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-s390x@12.18.0':
+  '@pnpm/exe.linux-s390x@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-x64-musl@12.18.0':
+  '@pnpm/exe.linux-x64-musl@12.20.0':
     optional: true
 
-  '@pnpm/exe.linux-x64@12.18.0':
+  '@pnpm/exe.linux-x64@12.20.0':
     optional: true
 
-  '@pnpm/exe.win32-arm64@12.18.0':
+  '@pnpm/exe.netbsd-x64@12.20.0':
     optional: true
 
-  '@pnpm/exe.win32-x64@12.18.0':
+  '@pnpm/exe.win32-arm64@12.20.0':
     optional: true
 
-  pnpm@12.18.0:
+  '@pnpm/exe.win32-x64@12.20.0':
+    optional: true
+
+  pnpm@12.20.0:
     optionalDependencies:
-      '@pnpm/exe.android-arm64': 12.18.0
-      '@pnpm/exe.android-x64': 12.18.0
-      '@pnpm/exe.darwin-arm64': 12.18.0
-      '@pnpm/exe.darwin-x64': 12.18.0
-      '@pnpm/exe.freebsd-x64': 12.18.0
-      '@pnpm/exe.linux-arm64': 12.18.0
-      '@pnpm/exe.linux-arm64-musl': 12.18.0
-      '@pnpm/exe.linux-ppc64': 12.18.0
-      '@pnpm/exe.linux-riscv64': 12.18.0
-      '@pnpm/exe.linux-s390x': 12.18.0
-      '@pnpm/exe.linux-x64': 12.18.0
-      '@pnpm/exe.linux-x64-musl': 12.18.0
-      '@pnpm/exe.win32-arm64': 12.18.0
-      '@pnpm/exe.win32-x64': 12.18.0
+      '@pnpm/exe.android-arm64': 12.20.0
+      '@pnpm/exe.android-x64': 12.20.0
+      '@pnpm/exe.darwin-arm64': 12.20.0
+      '@pnpm/exe.darwin-x64': 12.20.0
+      '@pnpm/exe.freebsd-x64': 12.20.0
+      '@pnpm/exe.linux-arm64': 12.20.0
+      '@pnpm/exe.linux-arm64-musl': 12.20.0
+      '@pnpm/exe.linux-ppc64': 12.20.0
+      '@pnpm/exe.linux-riscv64': 12.20.0
+      '@pnpm/exe.linux-s390x': 12.20.0
+      '@pnpm/exe.linux-x64': 12.20.0
+      '@pnpm/exe.linux-x64-musl': 12.20.0
+      '@pnpm/exe.netbsd-x64': 12.20.0
+      '@pnpm/exe.win32-arm64': 12.20.0
+      '@pnpm/exe.win32-x64': 12.20.0
 
 ---
 lockfileVersion: '9.0'
@@ -173,8 +182,8 @@ importers:
         specifier: 3.0.3
         version: 3.0.3
       '@kjanat/actionlint':
-        specifier: 1.17.0
-        version: 1.17.0
+        specifier: 1.17.1
+        version: 1.17.1
 
 packages:
 
@@ -255,63 +264,63 @@ packages:
     resolution: {integrity: sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ==}
     engines: {node: '>= 20.12.0'}
 
-  '@kjanat-actionlint/actionlint-darwin-arm64@1.17.0':
-    resolution: {integrity: sha512-kB93q6knyWErHnvJdOCf6et16j9tgeLpIYny3KYnoO/qvzI624de2QAK8fgvZvN1XElmuqXE8zea5Uui7BiKoQ==}
+  '@kjanat-actionlint/actionlint-darwin-arm64@1.17.1':
+    resolution: {integrity: sha512-HBlaSkyboFU/XIqI5wmhN8dc6esk2zGHdIgbtSdlQDPBFpmGeAkdtJQ/RPWzsP8u9zSAMdG8N4p9h9ouE7/nVA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@kjanat-actionlint/actionlint-darwin-x64@1.17.0':
-    resolution: {integrity: sha512-Eh+pD63DkrPWNOTr1dACvDcJ4Brf8hPIvLrrd8bvZOQUXyIVc2rZ4QgWn1sTG24c0BQxHStgcSKCk4ZRUUOaIQ==}
+  '@kjanat-actionlint/actionlint-darwin-x64@1.17.1':
+    resolution: {integrity: sha512-81RqM1XoI6m8WWrOZFogzFbOJ90XD6fi/1ZVG7c+0cZKtqI3/5ZzjbO/7LnTtc6l2F+r/weuETEVZ6+By+UUTw==}
     cpu: [x64]
     os: [darwin]
 
-  '@kjanat-actionlint/actionlint-freebsd-ia32@1.17.0':
-    resolution: {integrity: sha512-Sr209gtHyUbqAfPzYmxIKqIm8Mm2l3SFIWPTOQQWWUuj/m6IuyTKOXrQfvftcr2obDXbFq5L+IFNfRwQz6OvHg==}
+  '@kjanat-actionlint/actionlint-freebsd-ia32@1.17.1':
+    resolution: {integrity: sha512-urg9wljHtIM6n9mVY1bRFVyOaaxTd4M/nx8GMAiQ5UWV2yImXsW/d5hDIbAyexRGw8YglSzT4EIRc2Al7YUuCQ==}
     cpu: [ia32]
     os: [freebsd]
 
-  '@kjanat-actionlint/actionlint-freebsd-x64@1.17.0':
-    resolution: {integrity: sha512-9S1XdFePaZgB4BPgiXr1HgrLheYlV4huwLxraRhZl6TzbFx6ngFBa4GaIwLVFcGqsFGl9PV0v0bViT5uWOcTQg==}
+  '@kjanat-actionlint/actionlint-freebsd-x64@1.17.1':
+    resolution: {integrity: sha512-284SC35cZEy+C7VWIVQHmNnuy3BzrLB3JERy6+F+t8jmx2mAWD81M+ZeOGOFLdjogFZwJPpXG/h0D1oNxwQJrQ==}
     cpu: [x64]
     os: [freebsd]
 
-  '@kjanat-actionlint/actionlint-linux-arm64@1.17.0':
-    resolution: {integrity: sha512-gXwplEN84mc/iyIgD6UmL8w0Gs5C+xQnUWF/l1Yi5wXz02CLzxRWy87vnlSOewoejeVGUyS137WKyt/xPDvRww==}
+  '@kjanat-actionlint/actionlint-linux-arm64@1.17.1':
+    resolution: {integrity: sha512-QVcWLMt8PhTgfOGT/vaU2S59ZCXtabJAM8Ap/XCVFyzPyEKzkfI6WgYUaJcfbGjiNLlpYBoc602CYEbo6lN4bw==}
     cpu: [arm64]
     os: [linux]
 
-  '@kjanat-actionlint/actionlint-linux-arm@1.17.0':
-    resolution: {integrity: sha512-R4f+XuIFGNIo6gwK7Ha1OCehBrxQLEmzpqEdg7KCTxl8X6zt6svaItjyWigwnryZT9wK7tjpG6j3Wm4dJEoSGA==}
+  '@kjanat-actionlint/actionlint-linux-arm@1.17.1':
+    resolution: {integrity: sha512-V7CVSwitF8NoSwTEp9rrya03u60crs+7Ck0etuz2YHayPEMpyqwT0bKoC0I/GckBfnX+0k/4eb8f7jeDnEzTJw==}
     cpu: [arm]
     os: [linux]
 
-  '@kjanat-actionlint/actionlint-linux-ia32@1.17.0':
-    resolution: {integrity: sha512-/yuoz9xU6JhkHwlNcZwA22qp/G/joHagElS8fiN/fVhNWYmY9xaZfOW29ae/eSMBmOPiEcMsEjXYxyd8AHgZSw==}
+  '@kjanat-actionlint/actionlint-linux-ia32@1.17.1':
+    resolution: {integrity: sha512-Og+9+YlkO37+0TsljQMry39SMdx+szgcWDnSODXhpwfMc9aJhFlYRLqezqMAucJx4UtJD5KYPGsVQW5bbs2JOA==}
     cpu: [ia32]
     os: [linux]
 
-  '@kjanat-actionlint/actionlint-linux-x64@1.17.0':
-    resolution: {integrity: sha512-NpRSVyKuBd4yizECmaEkjVQmQwvTR8gOpDqm/DL5+E3pXmyt201QJ1IUWhsYFLVn+2MlVolWKaP/8UIPYkvPTQ==}
+  '@kjanat-actionlint/actionlint-linux-x64@1.17.1':
+    resolution: {integrity: sha512-PHtYeSNHQ3rzXjUgXx2MDWYLuYygzmtgDtSJ8NFZZ5vVo/mHVSMRiN6B9NGIgcSXEeikhPsOV0b6jqr167e5LA==}
     cpu: [x64]
     os: [linux]
 
-  '@kjanat-actionlint/actionlint-win32-arm64@1.17.0':
-    resolution: {integrity: sha512-ew0OEIcsCV9m+SBt5jekbumV9wgQ4GnMq/NOaXDT7BkXfy5kA4uIy5LGzelGVixccEAze8ClJ/x2l2rHZTFrvg==}
+  '@kjanat-actionlint/actionlint-win32-arm64@1.17.1':
+    resolution: {integrity: sha512-cP67XZjLso1Ju4j+xrUccJYz8UYpC5XOjFub/0ZOUIjGy65SK8FimZazhH0E2OJOqtlkJDrvFiNAuy34/qqlVg==}
     cpu: [arm64]
     os: [win32]
 
-  '@kjanat-actionlint/actionlint-win32-ia32@1.17.0':
-    resolution: {integrity: sha512-pQkRrUZ5vPpjdESitC+eiEDI0HFo4oFrbYUkz92VWjTtz/GKO2FrcvmKArAMZ2sqqGMUQVmkMA0MPb51DU6bkw==}
+  '@kjanat-actionlint/actionlint-win32-ia32@1.17.1':
+    resolution: {integrity: sha512-CxxStMWCboJ46E53HAyqAyXaSgSvWk18FdT3Yu5vtKd6KD0P73SYq46b9iU/0qgyrzc8VsPGFxEfUQv4UnXIRg==}
     cpu: [ia32]
     os: [win32]
 
-  '@kjanat-actionlint/actionlint-win32-x64@1.17.0':
-    resolution: {integrity: sha512-d7P0FeO7TWYJL7zyxn2+KOmH5xpqsopvUlm08rdajETsc7kdzpj0fjy057ysRYC2jbQkMxi/9Oha4yZ/cidnYQ==}
+  '@kjanat-actionlint/actionlint-win32-x64@1.17.1':
+    resolution: {integrity: sha512-iJBTShvGnjeL4sl7WBavG0w75TASRq4gJCZiFHUQgImzUFRUdaFETeY8yke1Nakit65s141fXM5D0EtuAyZ0WQ==}
     cpu: [x64]
     os: [win32]
 
-  '@kjanat/actionlint@1.17.0':
-    resolution: {integrity: sha512-FW1ggmACLgv1nB/sACgYJh2/4NXY78sSoEhx8XCEr9NcVNG5kQtA8Lv1dNQM0Lr/IAHnJXsOmwZjKYafhNTKTg==}
+  '@kjanat/actionlint@1.17.1':
+    resolution: {integrity: sha512-QQ0CQk7kkzyg2aF/m/ByRIEdIxv31Npbr6YdyHZ7E47I3XmFSleo5DovF7gbKp31Hq/oaX/EyWkE7sbrF8VU8Q==}
     engines: {node: '>=18.20.0'}
     hasBin: true
 
@@ -537,54 +546,54 @@ snapshots:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@kjanat-actionlint/actionlint-darwin-arm64@1.17.0':
+  '@kjanat-actionlint/actionlint-darwin-arm64@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-darwin-x64@1.17.0':
+  '@kjanat-actionlint/actionlint-darwin-x64@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-freebsd-ia32@1.17.0':
+  '@kjanat-actionlint/actionlint-freebsd-ia32@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-freebsd-x64@1.17.0':
+  '@kjanat-actionlint/actionlint-freebsd-x64@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-linux-arm64@1.17.0':
+  '@kjanat-actionlint/actionlint-linux-arm64@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-linux-arm@1.17.0':
+  '@kjanat-actionlint/actionlint-linux-arm@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-linux-ia32@1.17.0':
+  '@kjanat-actionlint/actionlint-linux-ia32@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-linux-x64@1.17.0':
+  '@kjanat-actionlint/actionlint-linux-x64@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-win32-arm64@1.17.0':
+  '@kjanat-actionlint/actionlint-win32-arm64@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-win32-ia32@1.17.0':
+  '@kjanat-actionlint/actionlint-win32-ia32@1.17.1':
     optional: true
 
-  '@kjanat-actionlint/actionlint-win32-x64@1.17.0':
+  '@kjanat-actionlint/actionlint-win32-x64@1.17.1':
     optional: true
 
-  '@kjanat/actionlint@1.17.0':
+  '@kjanat/actionlint@1.17.1':
     dependencies:
       ansispeck: 0.4.3
     optionalDependencies:
-      '@kjanat-actionlint/actionlint-darwin-arm64': 1.17.0
-      '@kjanat-actionlint/actionlint-darwin-x64': 1.17.0
-      '@kjanat-actionlint/actionlint-freebsd-ia32': 1.17.0
-      '@kjanat-actionlint/actionlint-freebsd-x64': 1.17.0
-      '@kjanat-actionlint/actionlint-linux-arm': 1.17.0
-      '@kjanat-actionlint/actionlint-linux-arm64': 1.17.0
-      '@kjanat-actionlint/actionlint-linux-ia32': 1.17.0
-      '@kjanat-actionlint/actionlint-linux-x64': 1.17.0
-      '@kjanat-actionlint/actionlint-win32-arm64': 1.17.0
-      '@kjanat-actionlint/actionlint-win32-ia32': 1.17.0
-      '@kjanat-actionlint/actionlint-win32-x64': 1.17.0
+      '@kjanat-actionlint/actionlint-darwin-arm64': 1.17.1
+      '@kjanat-actionlint/actionlint-darwin-x64': 1.17.1
+      '@kjanat-actionlint/actionlint-freebsd-ia32': 1.17.1
+      '@kjanat-actionlint/actionlint-freebsd-x64': 1.17.1
+      '@kjanat-actionlint/actionlint-linux-arm': 1.17.1
+      '@kjanat-actionlint/actionlint-linux-arm64': 1.17.1
+      '@kjanat-actionlint/actionlint-linux-ia32': 1.17.1
+      '@kjanat-actionlint/actionlint-linux-x64': 1.17.1
+      '@kjanat-actionlint/actionlint-win32-arm64': 1.17.1
+      '@kjanat-actionlint/actionlint-win32-ia32': 1.17.1
+      '@kjanat-actionlint/actionlint-win32-x64': 1.17.1
 
   '@manypkg/find-root@3.1.0':
     dependencies:
