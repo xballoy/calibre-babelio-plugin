@@ -66,7 +66,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh extension install github/gh-actions-lock --pin v0.4.1
+          gh extension install github/gh-actions-lock --pin v0.5.1
           gh actions-lock --verify
 
   gate:
